@@ -1,0 +1,127 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    background-color: white;
+    color: #333;
+    line-height: 1.8;
+}
+
+/* Thanh điều hướng */
+.navbar {
+    background-color: white !important;
+    border-bottom: 4px solid #d9534f;
+    padding: 15px 0;
+}
+.navbar-brand {
+    color: #222222;
+    font-size: 26px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+}
+.navbar-brand img {
+    height: 40px;
+    margin-right: 10px;
+}
+.navbar-nav .nav-link {
+    font-size: 18px;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+}
+.navbar-nav .nav-link:hover {
+    color: #d9534f !important;
+}
+
+/* Thanh tìm kiếm */
+.input-group .form-control {
+    font-size: 18px;
+    padding: 12px;
+    border-radius: 30px;
+    border: 1px solid #ccc;
+}
+.input-group .btn {
+    font-size: 18px;
+    background-color: #d9534f;
+    border-radius: 30px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+.input-group .btn:hover {
+    background-color: #c9302c;
+}
+
+/* Bố cục bài viết */
+.card {
+    border: none;
+    border-bottom: 2px solid #ccc;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card-title {
+    font-size: 24px;
+    font-weight: bold;
+}
+.card-text {
+    font-size: 18px;
+}
+.card img {
+    max-height: 250px;
+    object-fit: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.btn-primary {
+    background-color: #d9534f;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    background-color: #c9302c;
+}
+
+/* Danh mục */
+.list-group-item {
+    border: none;
+    background-color: transparent;
+    font-size: 18px;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+}
+.list-group-item a {
+    text-decoration: none;
+    color: #333;
+}
+.list-group-item:hover {
+    background-color: #d9534f;
+    color: white;
+    border-radius: 5px;
+}
+.list-group-item:hover a {
+    color: white;
+}
+
+/* Footer */
+footer {
+    background-color: #222;
+    color: white;
+    font-size: 16px;
+    padding: 20px 0;
+    text-align: center;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+footer img {
+    height: 50px;
+    margin-bottom: 10px;
+}
