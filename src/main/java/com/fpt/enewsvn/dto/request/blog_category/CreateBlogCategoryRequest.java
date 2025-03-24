@@ -17,9 +17,7 @@ import java.util.List;
 public class CreateBlogCategoryRequest implements Serializable {
 
     String title;
-    String description;
     Integer position;
-    boolean featured;
     List<MultipartFile> image;
     String status;
 }

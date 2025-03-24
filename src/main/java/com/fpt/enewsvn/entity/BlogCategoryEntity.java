@@ -25,14 +25,8 @@ public class BlogCategoryEntity extends AbstractEntity {
     @Column(name = "title")
     String title;
 
-    @Column(name = "Description",columnDefinition = "MEDIUMTEXT")
-    String description;
-
     @Column(name = "Position")
     Integer position;
-
-    @Column(name = "feature")
-    boolean featured;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "image")
@@ -45,13 +39,5 @@ public class BlogCategoryEntity extends AbstractEntity {
     @OneToMany( cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY, mappedBy = "blogCategory", orphanRemoval = false)
     List<BlogEntity> blog = new ArrayList<>();
 
-    public void createBlog(BlogEntity blogEntity) {
-        blog.add(blogEntity);
-        blogEntity.setBlogCategory(this);
-    }
 
-    public void removeBlog(BlogEntity blogEntity) {
-        blog.remove(blogEntity);
-        blogEntity.setBlogCategory(null);
-    }
 }

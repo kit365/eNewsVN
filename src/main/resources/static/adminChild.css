@@ -3,6 +3,10 @@ body {
     display: flex;
     margin: 0;
 }
+
+a {
+text-decoration: none;
+}
 .sidebar {
     width: 250px;
     height: 100vh;
@@ -29,4 +33,11 @@ body {
     margin-left: 250px;
     padding: 20px;
     width: calc(100% - 250px);
+}
+
+.hidden {
+    display: none;
+}
+.select-all-icon {
+    cursor: pointer;
 }

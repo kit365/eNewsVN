@@ -16,4 +16,11 @@ public class HomeController {
     public String home(Model model) {
         return "Home";
     }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "Admin";
+    }
+
+
 }

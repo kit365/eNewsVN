@@ -16,9 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UpdateBlogCategoryRequest implements Serializable {
     String title;
-    String description;
     Integer position;
-    boolean featured;
     List<MultipartFile> image;
     String status;
     boolean deleted;

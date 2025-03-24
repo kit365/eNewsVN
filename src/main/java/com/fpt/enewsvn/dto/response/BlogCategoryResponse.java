@@ -23,8 +23,7 @@ public class BlogCategoryResponse implements Serializable {
     String title;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     List<String> image;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    String description;
+
     String slug;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     Integer position;
@@ -33,8 +32,6 @@ public class BlogCategoryResponse implements Serializable {
     String status;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     Boolean deleted;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    Boolean featured;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = "yyyy-MM-dd")

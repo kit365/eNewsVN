@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="sidebar">
+  <h3>Admin Panel</h3>
+  <a href="">Tài khoản</a>
+  <a href="roles.html">Role</a>
+  <a th:href="@{/admin/blogs}">Blogs</a>
+  <a th:href="@{/admin/blog-category}">Thể loại Blog</a>
+</div>
+<div class="content">
+  <h2>Chào mừng đến với trang Admin</h2>
+  <p>Chọn một danh mục để quản lý.</p>
+
+  <!-- Combined Filter, Sort, and Search -->
+  <div class="mb-3 d-flex">
+    <input type="text" class="form-control me-2" id="searchInput" placeholder="Tìm kiếm..." oninput="updateTable()">
+    <select id="statusFilter" class="form-select me-2" onchange="updateTable()">
+      <option value="">Tất cả</option>
+      <option value="active">Hoạt động</option>
+      <option value="inactive">Không hoạt động</option>
+    </select>
+    <select id="sortOrder" class="form-select" onchange="updateTable()">
+      <option value="asc">A-Z</option>
+      <option value="desc">Z-A</option>
+    </select>
+  </div>
+
+  <button id="bulkActions" class="btn btn-danger hidden" onclick="deleteSelected()">Xóa mục đã chọn</button>
+  <button id="bulkUpdate" class="btn btn-primary hidden">Cập nhật trạng thái</button>
+
+  <table class="table" id="data-table">
+    <thead>
+    <tr>
+      <th><i class="fas fa-check-circle select-all-icon" id="select-all-icon" onclick="toggleSelectAll()"></i></th>
+      <th>ID</th>
+      <th>Tên</th>
+      <th>Email</th>
+      <th>Trạng thái</th>
+      <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><input type="checkbox" class="select-item" onchange="updateBulkActions()"></td>
+      <td>1</td>
+      <td>admin</td>
+      <td>admin@example.com</td>
+      <td class="status">active</td>
+      <td>
+        <button class="btn btn-warning btn-sm">Sửa</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSingle(this)">Xóa</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function toggleSelectAll() {
+    const selectAllIcon = document.getElementById('select-all-icon');
+    const checked = selectAllIcon.classList.contains('fa-check-circle');
+    document.querySelectorAll('.select-item').forEach(item => {
+      item.checked = !checked;
+    });
+    selectAllIcon.classList.toggle('fa-check-circle', !checked);
+    selectAllIcon.classList.toggle('fa-times-circle', checked);
+    updateBulkActions();
+  }
+
+  function updateBulkActions() {
+    const selectedItems = document.querySelectorAll('.select-item:checked');
+    const bulkActions = document.getElementById('bulkActions');
+    const bulkUpdate = document.getElementById('bulkUpdate');
+    bulkActions.classList.toggle('hidden', selectedItems.length === 0);
+    bulkUpdate.classList.toggle('hidden', selectedItems.length === 0);
+  }
+
+  function updateTable() {
+    const filterValue = document.getElementById('statusFilter').value;
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    const sortOrder = document.getElementById('sortOrder').value;
+
+    const rows = Array.from(document.querySelectorAll('#data-table tbody tr'));
+
+    // Filter
+    const filteredRows = rows.filter(row => {
+      const status = row.querySelector('.status').textContent;
+      const name = row.cells[2].textContent.toLowerCase();
+      return (filterValue === "" || status === filterValue) && name.includes(searchValue);
+    });
+
+    // Sort
+    filteredRows.sort((a, b) => {
+      const nameA = a.cells[2].textContent.toLowerCase();
+      const nameB = b.cells[2].textContent.toLowerCase();
+      return sortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+    });
+
+    // Update table
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = ''; // Clear existing rows
+    filteredRows.forEach(row => tbody.appendChild(row)); // Append filtered and sorted rows
+  }
+
+  function deleteSelected() {
+    const selectedItems = Array.from(document.querySelectorAll('.select-item:checked')).map(item => item.closest('tr').cells[1].textContent);
+    fetch('/api/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ids: selectedItems }),
+    })
+            .then(response => response.json())
+            .then(data => {
+              console.log(data);
+              selectedItems.forEach(id => {
+                const row = Array.from(document.querySelectorAll('#data-table tbody tr')).find(row => row.cells[1].textContent === id);
+                if (row) row.remove();
+              });
+            })
+            .catch(error => console.error('Error:', error));
+  }
+
+  function deleteSingle(button) {
+    const row = button.closest('tr');
+    const id = row.cells[1].textContent;
+
+    fetch('/admin/blogs/delete/{id}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ids: [id] }),
+    })
+            .then(response => response.json())
+            .then(data => {
+              console.log(data);
+              row.remove();
+            })
+            .catch(error => console.error('Error:', error));
+  }
+</script>
+</body>
+</html>
