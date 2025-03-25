@@ -14,7 +14,8 @@ import java.util.List;
 public interface BlogRepository extends JpaRepository<BlogEntity, Long> {
     Page<BlogEntity> findByTitleContainingIgnoreCaseAndDeleted(String keyword, boolean b, Pageable pageable);
 
-    Page<BlogEntity> findByTitleContainingIgnoreCaseAndStatusAndDeleted(String keyword, Status statusEnum, Pageable pageable, boolean b);
+    Page<BlogEntity> findByTitleContainingIgnoreCaseAndStatusAndDeleted(String keyword, Status statusEnum,
+                                                                        Pageable pageable, boolean b);
 
     Page<BlogEntity> findAllByDeleted(boolean b, Pageable pageable);
 
@@ -22,11 +23,12 @@ public interface BlogRepository extends JpaRepository<BlogEntity, Long> {
 
     Page<BlogEntity> findByTitleContainingAndStatus(String keyword, Status status, Pageable pageable);
 
-
     BlogEntity searchBySlug(String slug);
 
     long countByStatusAndDeleted(Status status, boolean b);
 
-
     List<BlogEntity> findAllByBlogCategory(BlogCategoryEntity blogCategory);
+
+    List<BlogEntity> findByBlogCategory_Title(String title);
+
 }
