@@ -36,10 +36,8 @@ import java.io.IOException;
 import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -55,7 +53,33 @@ public class BlogCategoryService {
 
     Cloudinary cloudinary;
 
+    public List<BlogCategoryResponse> getFilteredCategories(String status, String keyword, String sortOrder) {
+        // Lấy danh sách tất cả danh mục
+        List<BlogCategoryResponse> categories = getAll();
 
+        // Lọc theo trạng thái
+        if (status != null && !status.isEmpty()) {
+            categories = categories.stream()
+                    .filter(category -> category.getStatus().equals(status))
+                    .collect(Collectors.toList());
+        }
+
+        // Lọc theo từ khóa
+        if (keyword != null && !keyword.isEmpty()) {
+            categories = categories.stream()
+                    .filter(category -> category.getTitle().toLowerCase().contains(keyword.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        // Sắp xếp
+        if ("asc".equals(sortOrder)) {
+            categories.sort(Comparator.comparing(BlogCategoryResponse::getTitle));
+        } else if ("desc".equals(sortOrder)) {
+            categories.sort(Comparator.comparing(BlogCategoryResponse::getTitle).reversed());
+        }
+
+        return categories;
+    }
 
     public boolean add(CreateBlogCategoryRequest request) {
         log.info("Request JSON: {}", request);
