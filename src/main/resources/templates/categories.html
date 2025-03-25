@@ -46,8 +46,6 @@
     </div>
 
     <button id="bulkActions" class="btn btn-danger hidden" onclick="deleteSelected()">Xóa mục đã chọn</button>
-    <button id="bulkUpdate" class="btn btn-primary hidden">Cập nhật trạng thái</button>
-
     <table class="table" id="data-table">
         <thead>
         <tr>
@@ -205,6 +203,39 @@
             })
             .catch(error => console.error('Error updating category:', error));
     }
+
+    function deleteSelected() {
+        const selectedItems = document.querySelectorAll('.select-item:checked');
+        const idsToDelete = Array.from(selectedItems).map(item => {
+            return item.closest('tr').querySelector('td:nth-child(2)').innerText; // Lấy ID từ cột thứ hai
+        });
+
+        if (idsToDelete.length === 0) {
+            alert('Vui lòng chọn ít nhất một mục để xóa.');
+            return;
+        }
+
+        if (confirm(`Bạn có chắc chắn muốn xóa ${idsToDelete.length} mục?`)) {
+            fetch('/admin/category/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(idsToDelete) // Gửi danh sách ID
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Xóa thành công!');
+                        location.reload(); // Tải lại trang
+                    } else {
+                        alert('Có lỗi xảy ra khi xóa.');
+                    }
+                })
+                .catch(error => console.error('Error deleting categories:', error));
+        }
+    }
+
+
 </script>
 </body>
 </html>

@@ -7,12 +7,14 @@ import com.fpt.enewsvn.entity.BlogCategoryEntity;
 import com.fpt.enewsvn.service.BlogCategoryService;
 import com.fpt.enewsvn.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("admin")
@@ -36,8 +38,6 @@ public class AdminController {
     }
 
 
-
-
     @DeleteMapping("/blogs/delete/{id}")
     public String deleteBlog(@PathVariable("id") Long id) {
         blogService.delete(id);
@@ -49,6 +49,14 @@ public class AdminController {
         blogCategoryService.add(request);
         return "redirect:/admin/blog-category";
     }
+
+    @DeleteMapping("/category/delete")
+    public ResponseEntity<String> deleteBlogCategory(@RequestBody List<Long> ids) {
+        // Gọi dịch vụ để xóa danh mục theo danh sách ID
+        blogCategoryService.delete(ids);
+        return ResponseEntity.ok("Xóa thành công");
+    }
+
 
     @GetMapping("/category/delete/{id}")
     public String deleteCategory(@PathVariable("id") Long id) {
