@@ -36,11 +36,9 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "Password", nullable = false)
     String password;
 
-    @Column(name = "FirstName")
-    String firstName;
+    @Column(name = "FullName")
+    String fullName;
 
-    @Column(name = "LastName")
-    String lastName;
 
     @Column(name = "Email", unique = true)
     String email;
@@ -57,22 +55,10 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "Address")
     String address;
 
-//    2 field này được lưu khi user đăng nhập bằng google
-    @Column(name = "provider")
-    private String provider; // GOOGLE, LOCAL, etc.
-
-    @Column(name = "provider_id")
-    private String providerId; // Google user ID
-
-
-
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "roleId", nullable = true)
     RoleEntity role;
 
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "user")
-    List<ReviewEntity> reviews = new ArrayList<>();
 
 }

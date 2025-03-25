@@ -9,12 +9,12 @@ public class HomeController {
 
     @GetMapping
     public String home() {
-        return "Home";
+        return "home";
     }
 
     @GetMapping("/home")
     public String home(Model model) {
-        return "Home";
+        return "home";
     }
 
     @GetMapping("/admin")

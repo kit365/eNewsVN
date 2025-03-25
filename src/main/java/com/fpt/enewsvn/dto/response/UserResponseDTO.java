@@ -27,9 +27,7 @@ public class UserResponseDTO implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     String username;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    String firstName;
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    String lastName;
+    String fullName;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     String email;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

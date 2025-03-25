@@ -167,8 +167,7 @@ public class BlogService {
         UserResponseDTO userResponseDTO = new UserResponseDTO();
         if (blogEntity.getUser() != null) {
             userResponseDTO.setUserID(blogEntity.getUser().getUserID());
-            userResponseDTO.setFirstName(blogEntity.getUser().getFirstName());
-            userResponseDTO.setLastName(blogEntity.getUser().getLastName());
+            userResponseDTO.setFullName(blogEntity.getUser().getFullName());
 //            blogResponse.setUser(userResponseDTO);
         }
         return blogResponse;

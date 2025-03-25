@@ -30,7 +30,6 @@ public interface UserMapper {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "avatar", ignore = true)
     @Mapping(target = "role", ignore = true)
-    @Mapping(target = "reviews", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateUser(@MappingTarget UserEntity user,  UpdateUserRequest userDTO);
 

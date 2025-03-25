@@ -33,10 +33,7 @@ public class ReviewEntity extends AbstractEntity {
 //    @JsonManagedReference
 //    private ProductEntity product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "UserID", nullable = false)
-    @JsonManagedReference
-    private UserEntity user;
+
 
     @Column(name = "Rating", nullable = false)
     private int rating;

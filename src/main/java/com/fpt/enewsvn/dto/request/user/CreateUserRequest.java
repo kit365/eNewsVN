@@ -64,9 +64,7 @@ public class CreateUserRequest implements Serializable {
 
     Long role;
 
-    String firstName;
-
-    String lastName;
+    String fullName;
 
     String email;
 
