@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BlogCategoryRepository extends JpaRepository<BlogCategoryEntity, Long> {
     Page<BlogCategoryEntity> findByTitleContainingIgnoreCaseAndDeleted(String keyword, boolean b, Pageable pageable);
@@ -19,4 +21,7 @@ public interface BlogCategoryRepository extends JpaRepository<BlogCategoryEntity
     Page<BlogCategoryEntity> findAllByStatusAndDeleted(Status statusEnum, boolean b, Pageable pageable);
 
 
+    List<BlogCategoryEntity> findTop5ByOrderByPosition();
+
+    <T> ScopedValue<T> findBySlug(String slug);
 }

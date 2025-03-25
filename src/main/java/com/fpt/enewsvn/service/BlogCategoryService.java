@@ -499,6 +499,15 @@ public class BlogCategoryService {
     }
 
 
+    //home
+    public List<BlogCategoryResponse> getBLogsCategory() {
+        List<BlogCategoryEntity> blogCategoryEntities = blogCategoryRepository.findTop5ByOrderByPosition();
+        return blogCategoryMapper.toBlogCateroiesResponseDTO(blogCategoryEntities);
+    }
+
+
+
+
 
 
 
