@@ -68,13 +68,15 @@
             <td th:text="${blog?.title}"></td>
             <td th:text="${blog?.position}"></td>
             <td th:text="${blog?.status}"></td>
-            <td th:text="${blog?.createdAt}"></td>
-            <td th:text="${blog?.updatedAt}"></td>
+         <td th:text="${#dates.format(blog?.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
+         <td th:text="${#dates.format(blog?.updatedAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
 
             <td>
-                <button class="btn btn-warning btn-sm">Sửa</button>
+                <button class="btn btn-warning btn-sm"
+                        th:onclick="'openEditModal(' + ${blog.id} + ')'">Sửa</button>
                 <button class="btn btn-danger btn-sm">
-                        <a style="text-decoration: none" th:href="@{/admin/category/delete/{id}(id=${blog.id})}">Xóa</a>
+                    <a style="text-decoration: none"
+                       th:href="@{/admin/category/delete/{id}(id=${blog.id})}">Xóa</a>
                 </button>
             </td>
         </tr>
@@ -90,7 +92,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-<!--                    form tạo moi-->
                     <form id="createForm" action="/admin/category/add" method="post">
                         <div class="mb-3">
                             <label for="title" class="form-label">Tiêu đề</label>
@@ -102,9 +103,7 @@
                             <input type="text" class="form-control" id="position" name="position">
                         </div>
 
-                        <div class="mb-3">
-                            <input type="hidden" class="form-control" id="status" name="status" th:value="${T(com.fpt.enewsvn.Enum.Status).ACTIVE}">
-                        </div>
+                        <input type="hidden" class="form-control" id="status" name="status" th:value="${T(com.fpt.enewsvn.Enum.Status).ACTIVE}">
 
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Tạo</button>
@@ -112,23 +111,99 @@
                         </div>
                     </form>
                 </div>
-          </div>
-
+            </div>
         </div>
     </div>
 
-<!--    edit-->
-
+    <!-- Modal for Editing Item -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Chỉnh Sửa Danh Mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editId" name="id">
+                        <div class="mb-3">
+                            <label for="editTitle" class="form-label">Tiêu đề</label>
+                            <input type="text" class="form-control" id="editTitle" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPosition" class="form-label">Vị trí</label>
+                            <input type="number" class="form-control" id="editPosition" name="position">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStatus" class="form-label">Trạng thái</label>
+                            <select class="form-select" id="editStatus" name="status">
+                                <option value="ACTIVE">Hoạt động</option>
+                                <option value="INACTIVE">Không hoạt động</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="saveEdit()">Lưu</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
     function updateBulkActions() {
         const selectedItems = document.querySelectorAll('.select-item:checked');
         const bulkActions = document.getElementById('bulkActions');
         const bulkUpdate = document.getElementById('bulkUpdate');
         bulkActions.classList.toggle('hidden', selectedItems.length === 0);
         bulkUpdate.classList.toggle('hidden', selectedItems.length === 0);
+    }
+
+    function openEditModal(id) {
+        fetch(`/admin/category/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('editId').value = data.id;
+                document.getElementById('editTitle').value = data.title;
+                document.getElementById('editPosition').value = data.position;
+
+                const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                editModal.show();
+            })
+            .catch(error => console.error('Error fetching category data:', error));
+    }
+
+    function saveEdit() {
+        const id = document.getElementById('editId').value;
+        const title = document.getElementById('editTitle').value;
+        const position = parseInt(document.getElementById('editPosition').value);
+        const status = document.getElementById('editStatus').value;
+
+        const updateRequest = {
+            title: title,
+            position: position,
+            status: status,
+            deleted: false // Có thể thay đổi nếu cần
+        };
+
+        console.log(updateRequest);
+
+        fetch(`/admin/category/edit/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateRequest)
+        })
+            .then(() => {
+                alert('Cập nhật thành công!');
+                location.reload(); // Tải lại trang để thấy thay đổi
+            })
+            .catch(error => console.error('Error updating category:', error));
     }
 </script>
 </body>
