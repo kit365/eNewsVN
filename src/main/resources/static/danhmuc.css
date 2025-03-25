@@ -127,7 +127,27 @@ footer img {
     margin-bottom: 10px;
 }
 
-.detail{
-    display: none;
+i{
+    margin-left: 30px;
+    margin-top: 18px;
+}
+
+b{
+    margin-left: 10px;
+}
+h2{
+    margin-top: 40px;
+    margin-left: 150px;
+}
+p{
+    width: 80%;
+    margin-left: 30px;
+    margin-top: 22px;
+}
+.public_date{
+    margin-left: 300px;
+}
+span{
+    margin-left: 450px;
 }
 

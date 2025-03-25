@@ -33,5 +33,8 @@ public class HomeController {
         return "Admin";
     }
 
-
+    @GetMapping("/continue")
+    public String doctiep() {
+        return "detail";
+    }
 }
