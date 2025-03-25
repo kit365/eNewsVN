@@ -39,7 +39,7 @@ public class HomeController {
         return "Admin";
     }
 
-    @GetMapping("/{slug}")
+    @GetMapping("blogs/{slug}")
     public String getDetailsBlogs(@PathVariable("slug") String slug, Model model) {
         model.addAttribute("blog", blogService.searchBySlug(slug));
         return "detail";

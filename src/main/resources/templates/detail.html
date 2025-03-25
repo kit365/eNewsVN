@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Continue</title>
@@ -33,9 +33,12 @@
   </form>
 </div>
 
-<h2 th:text="${blog.title}"></h2>
-<i class="fa-solid fa-user"><b th:text="${blog.author}"></b></i>  <b class="public_date"><span th:text="${#dates.format(blog.createdAt, 'EEEE, dd/MM/yyyy, HH:mm')}"></span></b>
-<p th:utext="${blog.content}"></p>
-</p>
+<h2 th:text="${blog?.title}"></h2>
+<i class="fa-solid fa-user"><b th:text="${blog?.author}"></b></i>
+<b class="public_date">
+<!--  <span th:text="${#dates?.format(blog.createdAt, 'EEEE, dd/MM/yyyy, HH:mm')}"></span>-->
+  <span th:text="${blog?.createdAt}"></span>
+</b>
+<p th:utext="${blog?.content}"></p>
 </body>
 </html>

@@ -1,18 +1,17 @@
 body {
     font-family: 'Times New Roman', Times, serif;
-    background-color: white;
+    background-color: #f8f9fa;
     color: #333;
     line-height: 1.8;
 }
 
-/* Thanh điều hướng */
+/* Navigation Bar */
 .navbar {
-    background-color: #222 !important;
+    background-color: #343a40 !important;
     border-bottom: 4px solid #d9534f;
     padding: 15px 0;
 }
 .navbar-brand {
-    background-color: #222;
     color: white;
     font-size: 26px;
     font-weight: bold;
@@ -28,13 +27,13 @@ body {
 .navbar-nav .nav-link {
     font-size: 18px;
     padding: 12px 20px;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
 }
 .navbar-nav .nav-link:hover {
     color: #d9534f !important;
 }
 
-/* Thanh tìm kiếm */
+/* Search Bar */
 .input-group .form-control {
     font-size: 18px;
     padding: 12px;
@@ -46,13 +45,13 @@ body {
     background-color: #d9534f;
     border-radius: 30px;
     padding: 10px 20px;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 .input-group .btn:hover {
     background-color: #c9302c;
 }
 
-/* Bố cục bài viết */
+/* Article Layout */
 .card {
     border: none;
     border-bottom: 2px solid #ccc;
@@ -61,6 +60,7 @@ body {
     transition: transform 0.3s ease;
     border-radius: 10px;
     overflow: hidden;
+    margin-bottom: 20px;
 }
 .card:hover {
     transform: translateY(-5px);
@@ -83,19 +83,19 @@ body {
     border: none;
     border-radius: 30px;
     padding: 10px 20px;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 .btn-primary:hover {
     background-color: #c9302c;
 }
 
-/* Danh mục */
+/* Category List */
 .list-group-item {
     border: none;
     background-color: transparent;
     font-size: 18px;
     padding: 12px 20px;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 .list-group-item a {
     text-decoration: none;
@@ -127,27 +127,29 @@ footer img {
     margin-bottom: 10px;
 }
 
-i{
+/* Additional Styles */
+i {
     margin-left: 30px;
     margin-top: 18px;
 }
-
-b{
+b {
     margin-left: 10px;
 }
-h2{
+h2 {
     margin-top: 40px;
     margin-left: 150px;
+    font-size: 28px;
 }
-p{
+p {
     width: 80%;
     margin-left: 30px;
     margin-top: 22px;
+    font-size: 18px;
 }
-.public_date{
+.public_date {
     margin-left: 300px;
+    font-style: italic;
 }
-span{
+span {
     margin-left: 450px;
 }
-
