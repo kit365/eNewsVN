@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -359,20 +360,41 @@ public class BlogService {
         return publicId;
     }
 
-    public List<BlogEntity> findByCategory(String categoryName) {
-        BlogCategoryEntity category = blogCategoryRepository.findByTitle(categoryName);
-        if (category == null) {
+    public BlogCategoryEntity getBlogCategoryBySlug(String slug) {
+        try {
+            BlogCategoryEntity category = blogCategoryRepository.findBySlug(slug);
+            if (category == null) {
+                log.warn("Category not found with slug: {}", slug);
+                return null;
+            }
+            log.info("Found category: {} with ID: {}", category.getTitle(), category.getId());
+            return category;
+        } catch (Exception e) {
+            log.error("Error finding category with slug: " + slug, e);
+            return null;
+        }
+    }
+
+    public List<BlogEntity> findByCategory(String slug) {
+        try {
+            BlogCategoryEntity category = blogCategoryRepository.findBySlug(slug);
+            if (category == null) {
+                log.warn("Category not found with slug: {}", slug);
+                return new ArrayList<>();
+            }
+            List<BlogEntity> blogs = category.getBlog().stream()
+                    .filter(blog -> blog.getStatus() == Status.ACTIVE && !blog.isDeleted())
+                    .collect(Collectors.toList());
+            log.info("Found {} blogs for category: {}", blogs.size(), category.getTitle());
+            return blogs;
+        } catch (Exception e) {
+            log.error("Error finding blogs for category with slug: " + slug, e);
             return new ArrayList<>();
         }
-        return blogRepository.findByBlogCategory_Title(categoryName);
     }
 
     public BlogEntity searchBySlug(String slug) {
         return blogRepository.searchBySlug(slug);
     }
 
-    public BlogResponse getBlogResponseBySlug(String slug) {
-        BlogEntity blogEntity = blogRepository.searchBySlug(slug);
-        return blogMapper.toBlogResponse(blogEntity);
-    }
 }

@@ -14,7 +14,7 @@ public interface BlogCategoryRepository extends JpaRepository<BlogCategoryEntity
     Page<BlogCategoryEntity> findByTitleContainingIgnoreCaseAndDeleted(String keyword, boolean b, Pageable pageable);
 
     Page<BlogCategoryEntity> findByTitleContainingIgnoreCaseAndStatusAndDeleted(String keyword, Status statusEnum,
-                                                                                Pageable pageable, boolean b);
+            Pageable pageable, boolean b);
 
     Page<BlogCategoryEntity> findAllByDeleted(boolean b, Pageable pageable);
 
@@ -22,7 +22,7 @@ public interface BlogCategoryRepository extends JpaRepository<BlogCategoryEntity
 
     List<BlogCategoryEntity> findTop5ByOrderByPosition();
 
-    <T> ScopedValue<T> findBySlug(String slug);
+    BlogCategoryEntity findBySlug(String slug);
 
     BlogCategoryEntity findByTitle(String title);
 }

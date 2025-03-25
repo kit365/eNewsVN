@@ -46,8 +46,6 @@
                     th:text="${categoryName}">Danh Mục</h3>
 
                 <div th:each="blog : ${blogs}" class="card mb-3">
-                    <img th:if="${blog.thumbnail != null && !blog.thumbnail.empty}" th:src="${blog.thumbnail[0]}"
-                        class="card-img-top" alt="Ảnh bài viết">
                     <div class="card-body">
                         <h5 class="card-title" th:text="${blog.title}">Tiêu đề bài viết</h5>
                         <p class="card-text" th:text="${blog.content}">Nội dung tóm tắt...</p>
@@ -62,8 +60,7 @@
                 <h3>Danh Mục</h3>
                 <ul class="list-group">
                     <li th:each="category : ${categories}" class="list-group-item">
-                        <a th:href="@{/category/{title}(title=${category.title})}" th:text="${category.title}">Danh
-                            mục</a>
+                        <a th:href="@{/category/{slug}(slug=${category.slug})}" th:text="${category.title}">Danh mục</a>
                     </li>
                 </ul>
             </div>

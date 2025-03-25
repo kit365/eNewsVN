@@ -15,7 +15,7 @@ public interface BlogRepository extends JpaRepository<BlogEntity, Long> {
     Page<BlogEntity> findByTitleContainingIgnoreCaseAndDeleted(String keyword, boolean b, Pageable pageable);
 
     Page<BlogEntity> findByTitleContainingIgnoreCaseAndStatusAndDeleted(String keyword, Status statusEnum,
-                                                                        Pageable pageable, boolean b);
+            Pageable pageable, boolean b);
 
     Page<BlogEntity> findAllByDeleted(boolean b, Pageable pageable);
 

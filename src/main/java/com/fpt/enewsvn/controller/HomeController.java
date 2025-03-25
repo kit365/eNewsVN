@@ -40,8 +40,8 @@ public class HomeController {
     }
 
     @GetMapping("/{slug}")
-    public String getDetailsBlogs(@PathVariable("slug") String slug , Model model) {
-        model.addAttribute("blog", blogService.getBlogResponseBySlug(slug));
+    public String getDetailsBlogs(@PathVariable("slug") String slug, Model model) {
+        model.addAttribute("blog", blogService.searchBySlug(slug));
         return "detail";
     }
 
@@ -52,7 +52,7 @@ public class HomeController {
             model.addAttribute("blog", blog);
             // Lấy các bài viết liên quan cùng danh mục
             if (blog.getBlogCategory() != null) {
-                List<BlogEntity> relatedBlogs = blogService.findByCategory(blog.getBlogCategory().getTitle());
+                List<BlogEntity> relatedBlogs = blogService.findByCategory(blog.getBlogCategory().getSlug());
                 relatedBlogs.remove(blog); // Loại bỏ bài viết hiện tại
                 model.addAttribute("relatedBlogs", relatedBlogs);
             }
@@ -60,6 +60,5 @@ public class HomeController {
         }
         return "redirect:/home";
     }
-
 
 }
