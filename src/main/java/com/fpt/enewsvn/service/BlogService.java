@@ -371,4 +371,8 @@ public class BlogService {
         return blogRepository.searchBySlug(slug);
     }
 
+    public BlogResponse getBlogResponseBySlug(String slug) {
+        BlogEntity blogEntity = blogRepository.searchBySlug(slug);
+        return blogMapper.toBlogResponse(blogEntity);
+    }
 }

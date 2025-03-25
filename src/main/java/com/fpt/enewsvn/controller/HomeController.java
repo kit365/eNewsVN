@@ -59,4 +59,10 @@ public class HomeController {
         }
         return "redirect:/home";
     }
+
+    @GetMapping("/{slug}")
+    public String getDetailsBlogs(@PathVariable("slug") String slug , Model model) {
+        model.addAttribute("blog", blogService.getBlogResponseBySlug(slug));
+        return "detail";
+    }
 }
