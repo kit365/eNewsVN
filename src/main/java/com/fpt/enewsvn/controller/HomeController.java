@@ -1,5 +1,6 @@
 package com.fpt.enewsvn.controller;
 
+import com.fpt.enewsvn.dto.response.BlogResponse;
 import com.fpt.enewsvn.entity.BlogEntity;
 import com.fpt.enewsvn.service.BlogCategoryService;
 import com.fpt.enewsvn.service.BlogService;
@@ -29,8 +30,10 @@ public class HomeController {
 
     @GetMapping("/home")
     public String homes(Model model) {
+        List<BlogResponse> list = blogService.showNews();
         model.addAttribute("categories", blogCategoryService.getBLogsCategory());
-        model.addAttribute("blogs", blogService.getAll());
+
+        model.addAttribute("blogs", list);
         return "Home";
     }
 

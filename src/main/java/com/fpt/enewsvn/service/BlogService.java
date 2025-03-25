@@ -21,6 +21,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -395,6 +399,44 @@ public class BlogService {
 
     public BlogEntity searchBySlug(String slug) {
         return blogRepository.searchBySlug(slug);
+    }
+
+public List<BlogResponse> showNews() {
+    Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdDate"));
+    Page<BlogEntity> blogEntities = blogRepository.findAll(pageable);
+    return blogEntities.stream()
+            .map(blog -> {
+                BlogResponse response = blogMapper.toBlogResponse(blog);
+                response.setContent(generateSummary(blog.getContent(), 1));
+                return response;
+            })
+            .collect(Collectors.toList());
+}
+
+    public static String generateSummary(String content, int maxLines) {
+        if (content == null || maxLines <= 0) {
+            return "";
+        }
+
+        // Dùng Jsoup để parse HTML
+        Document doc = Jsoup.parse(content);
+        Element body = doc.body();
+
+        // Chọn tất cả thẻ con của <body> (thường là <p>, <div>, ...)
+        Elements elements = body.children();
+
+        StringBuilder summary = new StringBuilder();
+        int lines = 0;
+
+        for (Element element : elements) {
+            if (lines >= maxLines) {
+                break; // Dừng lại sau khi đủ số dòng
+            }
+            summary.append(element.outerHtml()).append("\n");
+            lines++;
+        }
+
+        return summary.toString();
     }
 
 }

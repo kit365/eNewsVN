@@ -49,8 +49,8 @@
                         class="card-img-top" alt="Ảnh bài viết">
                     <div class="card-body">
                         <h5 class="card-title" th:text="${blog.title}">Tiêu đề bài viết</h5>
-                        <p class="card-text" th:text="${blog.content}">Nội dung tóm tắt...</p>
-                        <a th:href="@{/blog/{slug}(slug=${blog.slug})}" class="btn btn-primary">Đọc tiếp</a>
+                        <p class="card-text" th:utext="${blog.content}">Nội dung tóm tắt...</p>
+                        <a th:href="@{/blogs/{slug}(slug=${blog.slug})}" class="btn btn-primary">Đọc tiếp</a>
                     </div>
                 </div>
 
