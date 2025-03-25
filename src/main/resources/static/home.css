@@ -7,12 +7,13 @@ body {
 
 /* Thanh điều hướng */
 .navbar {
-    background-color: white !important;
+    background-color: #222 !important;
     border-bottom: 4px solid #d9534f;
     padding: 15px 0;
 }
 .navbar-brand {
-    color: #222222;
+    background-color: #222;
+    color: white;
     font-size: 26px;
     font-weight: bold;
     text-transform: uppercase;
