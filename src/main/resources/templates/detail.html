@@ -33,21 +33,9 @@
   </form>
 </div>
 
-<h2>Title of the News</h2>
-<i class="fa-solid fa-user"><b>Bí Thư Tô Lâm</b></i>  <b class="public_date"><span th:text="'Ngày đăng: 25/03/2025'"></span></b>
-<p>
-  Tổng Bí thư Tô Lâm nhấn mạnh số lượng, cơ cấu Trung ương, Bộ Chính trị, Ban Bí thư khóa 14 phải gắn với việc tinh gọn bộ máy cơ quan, đơn vị, địa phương hiện nay.
-
-  Nội dung trên được Tổng Bí thư Tô Lâm chỉ đạo khi chủ trì họp Tiểu ban Nhân sự xem xét một số nội dung sửa đổi, bổ sung dự thảo phương hướng công tác nhân sự Đại hội 14 của Đảng, ngày 25/3.
-
-  Sau khi xem xét báo cáo, tờ trình và ý kiến thành viên Tiểu ban Nhân sự, Tổng Bí thư Tô Lâm cho rằng Đại hội 14 có ý nghĩa quan trọng, mang tính bước ngoặt, là mốc son đặc biệt trên con đường phát triển của đất nước. Đại hội 14 mở ra kỷ nguyên mới, kỷ nguyên vươn mình phát triển giàu mạnh, thịnh vượng của dân tộc.
-
-  Đại hội 14 đồng thời đặt ra yêu cầu tiếp tục tăng cường sự lãnh đạo của Đảng, tạo sự chuyển biến, đột phá mới, đưa đất nước phát triển nhanh và bền vững, bắt kịp các nước phát triển trong khu vực và trên thế giới.
-
-  Đây cũng là thời điểm tiến hành đồng bộ cuộc cách mạng sắp xếp, tinh gọn tổ chức bộ máy từ Trung ương đến cơ sở nhằm nâng cao hiệu lực, hiệu năng, hiệu quả hoạt động của hệ thống chính trị.
-
-  Bối cảnh nêu trên đặt ra yêu cầu "rất cao" trong công tác chuẩn bị và nâng cao chất lượng các văn kiện Đại hội 14 của Đảng, trong đó có phương hướng công tác nhân sự.
-
+<h2 th:text="${blog.title}"></h2>
+<i class="fa-solid fa-user"><b th:text="${blog.author}"></b></i>  <b class="public_date"><span th:text="${#dates.format(blog.createdAt, 'EEEE, dd/MM/yyyy, HH:mm')}"></span></b>
+<p th:utext="${blog.content}"></p>
 </p>
 </body>
 </html>
