@@ -7,10 +7,51 @@
     <title>Báo Điện Tử</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="home.css">
+    <style>
+        .card-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            max-height: 4.5em;
+            line-height: 1.5em;
+        }
+
+        .card-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            max-height: 3em;
+            line-height: 1.5em;
+        }
+
+        .location-stamp {
+            color: #666;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .description {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .category-sidebar {
+            position: sticky;
+            top: 20px;
+        }
+
+        .category-list {
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+    </style>
 </head>
 
 <body>
-
     <!-- Thanh điều hướng -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -38,10 +79,26 @@
         </form>
     </div>
 
-    <!-- Danh sách bài viết -->
+    <!-- Nội dung chính -->
     <div class="container mt-4">
         <div class="row">
-            <div class="col-md-8">
+            <!-- Danh mục bài viết - Bên trái -->
+            <div class="col-md-3">
+                <div class="category-sidebar">
+                    <h3>Danh Mục</h3>
+                    <div class="category-list">
+                        <ul class="list-group">
+                            <li th:each="category : ${categories}" class="list-group-item">
+                                <a th:href="@{/category/{slug}(slug=${category.slug})}" th:text="${category.title}">Danh
+                                    mục</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách bài viết - Bên phải -->
+            <div class="col-md-9">
                 <h3 style="font-family: Arial, sans-serif; font-weight: bold; font-style: italic">Bài Viết Mới Nhất</h3>
 
                 <div th:each="blog : ${blogs}" class="card mb-3">
@@ -49,30 +106,23 @@
                         class="card-img-top" alt="Ảnh bài viết">
                     <div class="card-body">
                         <h5 class="card-title" th:text="${blog.title}">Tiêu đề bài viết</h5>
-                        <p class="card-text" th:utext="${blog.content}">Nội dung tóm tắt...</p>
-                        <a th:href="@{/blogs/{slug}(slug=${blog.slug})}" class="btn btn-primary">Đọc tiếp</a>
+                        <div class="card-text"
+                            th:utext="${#strings.length(blog.content) > 300} ? ${#strings.substring(blog.content,0,300) + '...'} : ${blog.content}">
+                            Nội dung tóm tắt...
+                        </div>
+                        <a th:href="@{/blogs/{slug}(slug=${blog.slug})}" class="btn btn-primary mt-2">Đọc tiếp</a>
                     </div>
                 </div>
-
-        </div>
-
-            <!-- Danh mục bài viết -->
-            <div class="col-md-4">
-                <h3>Danh Mục</h3>
-                <ul class="list-group">
-                    <li th:each="category : ${categories}" class="list-group-item">
-                        <a th:href="@{/category/{slug}(slug=${category.slug})}" th:text="${category.title}">Danh mục</a>
-                    </li>
-                </ul>
             </div>
         </div>
     </div>
 
-<!-- Footer -->
-<footer class="bg-dark text-white text-center py-3 mt-5">
-    © 2025 Báo Điện Tử. All rights reserved.
-</footer>
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        © 2025 Báo Điện Tử. All rights reserved.
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
