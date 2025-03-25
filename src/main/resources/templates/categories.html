@@ -46,8 +46,6 @@
     </div>
 
     <button id="bulkActions" class="btn btn-danger hidden" onclick="deleteSelected()">Xóa mục đã chọn</button>
-    <button id="bulkUpdate" class="btn btn-primary hidden">Cập nhật trạng thái</button>
-
     <table class="table" id="data-table">
         <thead>
         <tr>
@@ -75,7 +73,7 @@
                 <button class="btn btn-warning btn-sm"
                         th:onclick="'openEditModal(' + ${blog.id} + ')'">Sửa</button>
                 <button class="btn btn-danger btn-sm">
-                    <a style="text-decoration: none; color: white"
+                    <a style="text-decoration: none"
                        th:href="@{/admin/category/delete/{id}(id=${blog.id})}">Xóa</a>
                 </button>
             </td>
@@ -103,9 +101,7 @@
                             <input type="text" class="form-control" id="position" name="position">
                         </div>
 
-                        <div class="mb-3">
-                            <input type="hidden" class="form-control" id="status" name="status" th:value="${T(com.fpt.enewsvn.Enum.Status).ACTIVE}">
-                        </div>
+                        <input type="hidden" class="form-control" id="status" name="status" th:value="${T(com.fpt.enewsvn.Enum.Status).ACTIVE}">
 
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Tạo</button>
@@ -113,13 +109,45 @@
                         </div>
                     </form>
                 </div>
-          </div>
-
+            </div>
         </div>
     </div>
 
-<!--    edit-->
-
+    <!-- Modal for Editing Item -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Chỉnh Sửa Danh Mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editId" name="id">
+                        <div class="mb-3">
+                            <label for="editTitle" class="form-label">Tiêu đề</label>
+                            <input type="text" class="form-control" id="editTitle" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPosition" class="form-label">Vị trí</label>
+                            <input type="number" class="form-control" id="editPosition" name="position">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStatus" class="form-label">Trạng thái</label>
+                            <select class="form-select" id="editStatus" name="status">
+                                <option value="ACTIVE">Hoạt động</option>
+                                <option value="INACTIVE">Không hoạt động</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="saveEdit()">Lưu</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -207,7 +235,46 @@
         }
     }
 
+    function updateSelected() {
+        const selectedItems = document.querySelectorAll('.select-item:checked');
+        const updateRequests = [];
 
+        selectedItems.forEach(item => {
+            const row = item.closest('tr');
+            const id = row.querySelector('td:nth-child(2)').innerText; // Lấy ID từ cột thứ hai
+            const status = document.getElementById('statusSelect').value; // Giả sử bạn có một dropdown để chọn trạng thái
+
+            updateRequests.push({
+                id: id,
+                status: status
+            });
+        });
+
+        if (updateRequests.length === 0) {
+            alert('Vui lòng chọn ít nhất một mục để cập nhật.');
+            return;
+        }
+
+        fetch('/admin/category/change-multi', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: updateRequests.map(req => req.id),
+                status: status // Chỉ cần gửi trạng thái một lần cho tất cả
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Cập nhật thành công!');
+                    location.reload(); // Tải lại trang
+                } else {
+                    alert('Có lỗi xảy ra khi cập nhật.');
+                }
+            })
+            .catch(error => console.error('Error updating categories:', error));
+    }
 </script>
 </body>
 </html>

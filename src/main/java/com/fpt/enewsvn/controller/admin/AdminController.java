@@ -31,10 +31,13 @@ public class AdminController {
     }
 
     @GetMapping("/blog-category")
-    public String blogCategory(Model model) {
-        List<BlogCategoryResponse> list = blogCategoryService.getAll();
+    public String blogCategory(Model model,
+                               @RequestParam(required = false) String status,
+                               @RequestParam(required = false) String keyword,
+                               @RequestParam(required = false) String sortOrder) {
+        List<BlogCategoryResponse> list = blogCategoryService.getFilteredCategories(status, keyword, sortOrder);
         model.addAttribute("blogs", list);
-        return "categories";
+        return "categories"; // Trả về view tương ứng
     }
 
 
