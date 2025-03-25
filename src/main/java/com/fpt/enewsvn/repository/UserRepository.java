@@ -32,7 +32,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
     UserEntity findByEmail(String email);
 
 
-    Optional<UserEntity> findByProviderId(String providerId);
-
     long countByStatusAndDeleted(Status status, boolean b);
 }
