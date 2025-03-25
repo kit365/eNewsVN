@@ -5,41 +5,273 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .select-all-icon {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 <div class="sidebar">
     <h3>Admin Panel</h3>
     <a href="">Tài khoản</a>
-    <a href="roles.html">Role</a>
+    <a th:href="@{/admin/roles}">Role</a>
     <a th:href="@{/admin/blogs}">Blogs</a>
     <a th:href="@{/admin/blog-category}">Thể loại Blog</a>
 </div>
 <div class="content">
     <h2>Chào mừng đến với trang Admin</h2>
     <p>Chọn một danh mục để quản lý.</p>
-    <input type="text" class="form-control mb-3" placeholder="Tìm kiếm...">
-    <table class="table table-bordered">
+
+    <!-- Button to Open the Create Modal -->
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createModal">Tạo Mới</button>
+
+    <!-- Combined Filter, Sort, and Search -->
+    <div class="mb-3 d-flex">
+        <input type="text" class="form-control me-2" id="searchInput" placeholder="Tìm kiếm..." oninput="updateTable()">
+        <button class="btn btn-primary me-2" onclick="searchRoles()">Tìm kiếm</button>
+        <select id="statusFilter" class="form-select me-2" onchange="updateTable()">
+            <option value="">Tất cả</option>
+            <option value="ACTIVE">Hoạt động</option>
+            <option value="INACTIVE">Không hoạt động</option>
+        </select>
+        <select id="sortOrder" class="form-select" onchange="updateTable()">
+            <option value="asc">A-Z</option>
+            <option value="desc">Z-A</option>
+        </select>
+    </div>
+
+    <button id="bulkActions" class="btn btn-danger hidden" onclick="deleteSelected()">Xóa mục đã chọn</button>
+    <table class="table" id="data-table">
         <thead>
         <tr>
+            <th><i class="fas fa-check-circle select-all-icon" id="select-all-icon" onclick="toggleSelectAll()"></i></th>
             <th>ID</th>
-            <th>Tên Role</th>
+            <th>Vai trò</th>
+            <th>Mô tả</th>
+            <th>Trạng Thái</th>
+            <th>Ngày tạo</th>
+            <th>Ngày cập nhập</th>
             <th>Hành động</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>1</td>
-            <td>Admin</td>
+        <tr th:each="role : ${roles}">
+            <td><input type="checkbox" class="select-item" onchange="updateBulkActions()"></td>
+            <td th:text="${role?.roleId}"></td>
+            <td th:text="${role?.title}"></td>
+            <td th:text="${role?.description}"></td>
+            <td th:text="${role?.status}"></td>
+            <td th:text="${#dates.format(role?.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
+            <td th:text="${#dates.format(role?.updatedAt, 'dd/MM/yyyy HH:mm:ss')}"></td>
             <td>
-                <button class="btn btn-warning btn-sm">Sửa</button>
-                <button class="btn btn-danger btn-sm">Xóa</button>
+                <button class="btn btn-warning btn-sm" th:onclick="'openEditModal(' + ${role.roleId} + ')'">Sửa</button>
+                <button class="btn btn-danger btn-sm">
+                    <a style="text-decoration: none; color: white" th:href="@{/admin/roles/delete/{id}(id=${role.roleId})}" onclick="return confirm('Do you want to delete ?')">Xóa</a>
+                </button>
             </td>
         </tr>
         </tbody>
     </table>
-    <button class="btn btn-danger">Xóa mục đã chọn</button>
+
+    <!-- Pagination Controls -->
+    <nav aria-label="Page navigation" th:if="${totalPages > 0}">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${page == 0} ? 'disabled'">
+                <a class="page-link" href="#" th:onclick="'navigatePage(' + ${page > 0 ? page - 1 : 0} + ')'" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, (totalPages ?: 1) - 1)}" th:classappend="${i == page} ? 'active'">
+                <a class="page-link" href="#" th:onclick="'navigatePage(' + ${i} + ')'">[[${i + 1}]]</a>
+            </li>
+            <li class="page-item" th:classappend="${page >= (totalPages ?: 1) - 1} ? 'disabled'">
+                <a class="page-link" href="#" th:onclick="'navigatePage(' + ${page < (totalPages ?: 1) - 1 ? page + 1 : page} + ')'" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Modal for Creating New Item -->
+    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">Tạo Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createForm" action="/admin/roles/add" method="post">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Vai trò</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Mô tả</label>
+                            <input type="text" class="form-control" id="description" name="description">
+                        </div>
+                        <input type="hidden" class="form-control" id="status" name="status" th:value="${T(com.fpt.enewsvn.Enum.Status).ACTIVE}">
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Tạo</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing Item -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Chỉnh Sửa Vai Trò</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editId" name="id">
+                        <div class="mb-3">
+                            <label for="editTitle" class="form-label">Vai trò</label>
+                            <input type="text" class="form-control" id="editTitle" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Mô tả</label>
+                            <input type="text" class="form-control" id="editDescription" name="description">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStatus" class="form-label">Trạng thái</label>
+                            <select class="form-select" id="editStatus" name="status">
+                                <option value="ACTIVE">Hoạt động</option>
+                                <option value="INACTIVE">Không hoạt động</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" onclick="saveEdit()">Lưu</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function updateBulkActions() {
+        const selectedItems = document.querySelectorAll('.select-item:checked');
+        const bulkActions = document.getElementById('bulkActions');
+        bulkActions.classList.toggle('hidden', selectedItems.length === 0);
+    }
+
+    function openEditModal(id) {
+        fetch(`/admin/roles/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('editId').value = data.id;
+                document.getElementById('editTitle').value = data.title;
+                document.getElementById('editDescription').value = data.description;
+                document.getElementById('editStatus').value = data.status;
+
+                const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                editModal.show();
+            })
+            .catch(error => console.error('Error fetching role data:', error));
+    }
+
+    function saveEdit() {
+        const id = document.getElementById('editId').value;
+        const title = document.getElementById('editTitle').value;
+        const description = document.getElementById('editDescription').value;
+        const status = document.getElementById('editStatus').value;
+
+        const updateRequest = {
+            title: title,
+            description: description,
+            status: status
+        };
+
+        fetch(`/admin/roles/edit/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateRequest)
+        })
+            .then(() => {
+                alert('Cập nhật thành công!');
+                location.reload();
+            })
+            .catch(error => console.error('Error updating role:', error));
+    }
+
+    function deleteSelected() {
+        const selectedItems = document.querySelectorAll('.select-item:checked');
+        const idsToDelete = Array.from(selectedItems).map(item => {
+            return item.closest('tr').querySelector('td:nth-child(2)').innerText;
+        });
+
+        if (idsToDelete.length === 0) {
+            alert('Vui lòng chọn ít nhất một mục để xóa.');
+            return;
+        }
+
+        if (confirm(`Bạn có chắc chắn muốn xóa ${idsToDelete.length} mục?`)) {
+            fetch('/admin/roles/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(idsToDelete)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Xóa thành công!');
+                        location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra khi xóa.');
+                    }
+                })
+                .catch(error => console.error('Error deleting roles:', error));
+        }
+    }
+
+    function toggleSelectAll() {
+        const selectAllIcon = document.getElementById('select-all-icon');
+        const selectItems = document.querySelectorAll('.select-item');
+        const allSelected = Array.from(selectItems).every(item => item.checked);
+
+        selectItems.forEach(item => {
+            item.checked = !allSelected;
+        });
+
+        updateBulkActions();
+    }
+
+    function searchRoles() {
+        const keyword = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        const sortOrder = document.getElementById('sortOrder').value;
+        const url = `/admin/roles?page=0&size=10&sortKey=roleId&sortDirection=${sortOrder}&keyword=${keyword}&status=${status}`;
+        window.location.href = url;
+    }
+
+    function navigatePage(page) {
+        const keyword = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        const sortOrder = document.getElementById('sortOrder').value;
+        const url = `/admin/roles?page=${page}&size=10&sortKey=roleId&sortDirection=${sortOrder}&keyword=${keyword}&status=${status}`;
+        window.location.href = url;
+    }
+</script>
 </body>
 </html>
