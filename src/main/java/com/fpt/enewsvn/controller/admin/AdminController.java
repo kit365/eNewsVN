@@ -2,11 +2,16 @@ package com.fpt.enewsvn.controller.admin;
 
 import com.fpt.enewsvn.dto.request.blog_category.CreateBlogCategoryRequest;
 import com.fpt.enewsvn.dto.request.blog_category.UpdateBlogCategoryRequest;
+import com.fpt.enewsvn.dto.request.role.CreateRoleRequest;
+import com.fpt.enewsvn.dto.request.role.UpdateRoleRequest;
 import com.fpt.enewsvn.dto.response.BlogCategoryResponse;
+import com.fpt.enewsvn.dto.response.RoleResponseDTO;
 import com.fpt.enewsvn.entity.BlogCategoryEntity;
 import com.fpt.enewsvn.service.BlogCategoryService;
 import com.fpt.enewsvn.service.BlogService;
+import com.fpt.enewsvn.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,6 +30,10 @@ public class AdminController {
     @Autowired
     private BlogCategoryService blogCategoryService;
 
+    @Autowired
+    private RoleService roleService;
+
+
     @GetMapping("/blogs")
     public String blog() {
         return "blogs";
@@ -39,7 +48,6 @@ public class AdminController {
         model.addAttribute("blogs", list);
         return "categories"; // Trả về view tương ứng
     }
-
 
     @DeleteMapping("/blogs/delete/{id}")
     public String deleteBlog(@PathVariable("id") Long id) {
@@ -80,4 +88,56 @@ public class AdminController {
         System.out.println(request);
         return ResponseEntity.ok("Cập nhật thành công"); // Hoặc trả về thông báo khác
     }
+
+
+    // ROLE
+
+    @GetMapping("/roles")
+    public String role(Model model,
+                       @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "10") int size,
+                       @RequestParam(defaultValue = "roleId") String sortKey,
+                       @RequestParam(defaultValue = "asc") String sortDirection,
+                       @RequestParam(defaultValue = "") String keyword,
+                       @RequestParam(defaultValue = "ACTIVE") String status) {
+        Page<RoleResponseDTO> pageResult = roleService.getAll(page, size, sortKey, sortDirection, keyword, status);
+        model.addAttribute("roles", pageResult.getContent());
+        model.addAttribute("page", page);
+        model.addAttribute("totalPages", pageResult.getTotalPages());
+        return "roles";
+    }
+
+    @PostMapping("/roles/add")
+    public String addRole(@ModelAttribute CreateRoleRequest request) {
+        roleService.add(request);
+        return "redirect:/admin/roles";
+    }
+
+    @GetMapping("/roles/delete/{id}")
+    public String deleteRole(@PathVariable("id") Long id) {
+        roleService.delete(id);
+        return "redirect:/admin/roles";
+    }
+
+    @DeleteMapping("/roles/delete")
+    public ResponseEntity<String> deleteRole(@RequestBody List<Long> ids) {
+        // Gọi dịch vụ để xóa danh mục theo danh sách ID
+        roleService.delete(ids);
+        return ResponseEntity.ok("Xóa thành công");
+    }
+
+    @GetMapping("/roles/{id}")
+    @ResponseBody // Sử dụng để trả về JSON
+    public RoleResponseDTO showRoleByID(@PathVariable("id") Long id) {
+        return roleService.showDetail(id);
+    }
+
+    @PostMapping("/roles/edit/{id}")
+    public ResponseEntity<String> editRole(@PathVariable("id") Long id, @RequestBody UpdateRoleRequest request) {
+        roleService.update(id, request);
+        return ResponseEntity.ok("Cập nhật thành công"); // Hoặc trả về thông báo khác
+    }
+
+
+
 }

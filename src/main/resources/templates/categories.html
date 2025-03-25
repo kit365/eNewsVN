@@ -20,7 +20,7 @@
 <div class="sidebar">
     <h3>Admin Panel</h3>
     <a href="">Tài khoản</a>
-    <a href="roles.html">Role</a>
+    <a th:href="@{/admin/roles}">Role</a>
     <a th:href="@{/admin/blogs}">Blogs</a>
     <a th:href="@{/admin/blog-category}">Thể loại Blog</a>
 </div>
@@ -74,7 +74,8 @@
                         th:onclick="'openEditModal(' + ${blog.id} + ')'">Sửa</button>
                 <button class="btn btn-danger btn-sm">
                     <a style="text-decoration: none"
-                       th:href="@{/admin/category/delete/{id}(id=${blog.id})}">Xóa</a>
+                       th:href="@{/admin/category/delete/{id}(id=${blog.id})}"
+                       onclick="return confirm('Do you want to delete ?')">Xóa</a>
                 </button>
             </td>
         </tr>
