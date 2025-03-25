@@ -45,36 +45,6 @@ public class RoleService {
         return true;
     }
 
-    public boolean addPermission(List<AddPermissionRequest> request) {
-        List<Long> id = request.stream()
-                .map(AddPermissionRequest::getRoleId)
-                .collect(Collectors.toList());
-
-        List<RoleEntity> roles = roleRepository.findAllById(id);
-
-        roles.forEach(roleEntity -> {
-            request.stream()
-                    .filter(roleRequest -> roleRequest.getRoleId().equals(roleEntity.getRoleId()))
-                    .findFirst()
-                    .ifPresent(roleRequest -> {
-                        List<String> newPermissions = new ArrayList<>(roleRequest.getPermission()); // Chỉ lấy quyền mới
-                        roleEntity.setPermission(newPermissions); // Ghi đè thay vì cộng dồn
-                    });
-        });
-
-        roleRepository.saveAll(roles); // Chỉ cập nhật role có trong request
-        return true;
-    }
-
-
-
-
-    public RoleResponseDTO getPermissionById(Long id) {
-        RoleEntity roleEntity = roleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-        RoleResponseDTO response = roleMapper.toRoleResponseDTO(roleEntity);
-        return response;
-    }
-
 
     public RoleResponseDTO update(Long id, UpdateRoleRequest request) {
         RoleEntity roleEntity = getRoleEntityById(id);

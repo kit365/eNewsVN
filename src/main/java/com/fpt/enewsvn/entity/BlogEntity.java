@@ -39,18 +39,11 @@ public class BlogEntity extends AbstractEntity {
     @Column(name = "content",columnDefinition = "MEDIUMTEXT")
     String content;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "thumbnail")
-    List<String> thumbnail;
-
     @Column(name = "position")
     Integer position;
 
     @Column(name = "Slug")
     String slug;
-
-    @Column(name = "Featured")
-    boolean featured;
 
     @Column(name = "Author")
     String author;

@@ -482,12 +482,10 @@ public class BlogCategoryService {
                 BlogResponse blogResponse = new BlogResponse();
                 blogResponse.setId(blogEntity.getId());
                 blogResponse.setAuthor(blogEntity.getAuthor());
-                blogResponse.setThumbnail(blogEntity.getThumbnail());
                 blogResponse.setTitle(blogEntity.getTitle());
                 blogResponse.setSlug(blogEntity.getSlug());
                 blogResponse.setContent(blogEntity.getContent());
                 blogResponse.setCreatedAt(blogEntity.getCreatedAt());
-                blogResponse.setFeatured(blogEntity.isFeatured());
                 blogResponses.add(blogResponse);
             });
 

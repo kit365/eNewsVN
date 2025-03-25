@@ -15,13 +15,10 @@ import java.io.Serializable;
 public class BlogUpdateRequest implements Serializable {
     String title;
     String content;
-    Long user;
-    //    List<MultipartFile> thumbnail;
+    String author;
     Integer position;
     boolean featured;
     String status;
     boolean deleted;
-    String author;
-//    BlogCategoryResponse blogCategory;
     Long categoryID;
 }

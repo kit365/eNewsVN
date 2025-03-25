@@ -63,30 +63,9 @@ public class BlogService {
             blogEntity.setBlogCategory(null);
         }
 
-        if (request.getUser() != null) {
-            blogEntity.setUser(userRepository.findById(request.getUser()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
-        }
-
         if (request.getPosition() == null || request.getPosition() <= 0) {
             Integer size = blogRepository.findAll().size();
             blogEntity.setPosition(size + 1);
-        }
-
-        if (request.getThumbnail() != null && !request.getThumbnail().isEmpty()) {
-
-            int count = 0;
-            List<String> images = new ArrayList<>();
-
-            for (MultipartFile file : request.getThumbnail()) {
-                try {
-                    String url = uploadImageFromFile(file, getSlug(request.getTitle()), count++);
-                    images.add(url);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    throw new RuntimeException(e);
-                }
-            }
-            blogEntity.setThumbnail(images);
         }
 
         blogEntity.setSlug(getSlug(request.getTitle()));
@@ -116,9 +95,6 @@ public class BlogService {
             blogEntity.setBlogCategory(null);
         }
 
-        if (request.getUser() != null) {
-            blogEntity.setUser(userRepository.findById(request.getUser()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
-        }
 
         if (StringUtils.hasLength(request.getTitle())) {
             blogEntity.setSlug(getSlug(request.getTitle()));
@@ -215,15 +191,6 @@ public class BlogService {
             throw new AppException(ErrorCode.BLOG_NOT_FOUND);
         }
 
-        if (blogEntity.getThumbnail() != null && !blogEntity.getThumbnail().isEmpty()) {
-            blogEntity.getThumbnail().forEach(s -> {
-                try {
-                    deleteImageFromCloudinary(s);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
         log.info("Delete: {}", id);
         blogRepository.delete(blogEntity);
         return true;
@@ -233,17 +200,6 @@ public class BlogService {
     public boolean delete(List<Long> longs) {
         List<BlogEntity> blogEntities = blogRepository.findAllById(longs);
 
-        for (BlogEntity blogEntity : blogEntities) {
-            if (blogEntity.getThumbnail() != null && !blogEntity.getThumbnail().isEmpty()) {
-                for (String url : blogEntity.getThumbnail()) {
-                    try {
-                        deleteImageFromCloudinary(url);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }
 
         blogRepository.deleteAll(blogEntities);
         return true;
@@ -286,44 +242,12 @@ public class BlogService {
     }
 
 
-    public Map<String, Object> getAll(int page, int size, String sortKey, String sortDirection, String status, String keyword) {
-        Map<String, Object> map = new HashMap<>();
+    public Page<BlogResponse> getAll(int page, int size, String sortKey, String sortDirection, String keyword, String status) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), sortKey));
+        Status blogStatus = Status.valueOf(status.toUpperCase());
 
-        Sort.Direction direction = getSortDirection(sortDirection);
-        Sort sort = Sort.by(direction, sortKey);
-        int p = (page > 0) ? page - 1 : 0;
-        Pageable pageable = PageRequest.of(p, size, sort);
-
-        Page<BlogEntity> blogEntityPage;
-
-        // Tìm kiếm theo keyword trước
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            if (status.equalsIgnoreCase("ALL")) {
-                // Tìm kiếm theo tên sản phẩm, không lọc theo status
-                blogEntityPage = blogRepository.findByTitleContainingIgnoreCaseAndDeleted(keyword, false, pageable);
-            } else {
-                // Tìm kiếm theo tên sản phẩm và status
-                Status statusEnum = getStatus(status);
-                blogEntityPage = blogRepository.findByTitleContainingIgnoreCaseAndStatusAndDeleted(keyword, statusEnum, pageable, false);
-            }
-        } else {
-            // Nếu không có keyword, chỉ lọc theo status
-            if (status == null || status.equalsIgnoreCase("ALL")) {
-                blogEntityPage = blogRepository.findAllByDeleted(false, pageable);
-            } else {
-                Status statusEnum = getStatus(status);
-                blogEntityPage = blogRepository.findAllByStatusAndDeleted(statusEnum, false, pageable);
-            }
-        }
-
-        Page<BlogResponse> list = blogEntityPage.map(blogMapper::toBlogResponse);
-
-        map.put("blogs", list.getContent());
-        map.put("currentPage", list.getNumber() + 1);
-        map.put("totalItems", list.getTotalElements());
-        map.put("totalPages", list.getTotalPages());
-        map.put("pageSize", list.getSize());
-        return map;
+        Page<BlogEntity> blogPage = blogRepository.findByTitleContainingAndStatus(keyword, blogStatus, pageable);
+        return blogPage.map(blogMapper::toBlogResponse);
     }
 
     public Map<String, Object> getTrash(int page, int size, String sortKey, String sortDirection, String status, String keyword) {

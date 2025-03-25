@@ -98,31 +98,46 @@
         </ul>
     </nav>
 
-    <!-- Modal for Creating New Item -->
-    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <!-- Create Modal -->
+    <div class="modal fade" id="createModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createModalLabel">Tạo Mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Tạo Blog Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <form id="createForm" action="/admin/roles/add" method="post">
+                <form id="createForm" th:action="@{/admin/blogs/add}" method="post">
+                    <div class="modal-body">
                         <div class="mb-3">
-                            <label for="title" class="form-label">Vai trò</label>
-                            <input type="text" class="form-control" id="title" name="title" required>
+                            <label class="form-label">Tiêu đề</label>
+                            <input type="text" class="form-control" name="title" required>
                         </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label">Mô tả</label>
-                            <input type="text" class="form-control" id="description" name="description">
+                            <label class="form-label">Thể loại</label>
+                            <select class="form-select" name="categoryId" required>
+                                <option th:each="category : ${categories}"
+                                        th:value="${category.id}"
+                                        th:text="${category.title}">
+                                </option>
+                            </select>
                         </div>
-                        <input type="hidden" class="form-control" id="status" name="status" th:value="${T(com.fpt.enewsvn.Enum.Status).ACTIVE}">
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Tạo</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <div class="mb-3">
+                            <label class="form-label">Nội dung</label>
+                            <textarea id="createContent" class="form-control" name="description" rows="15"></textarea>
                         </div>
-                    </form>
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select class="form-select" name="status">
+                                <option value="ACTIVE">Hoạt động</option>
+                                <option value="INACTIVE">Không hoạt động</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Tạo</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -272,6 +287,42 @@
         const url = `/admin/roles?page=${page}&size=10&sortKey=roleId&sortDirection=${sortOrder}&keyword=${keyword}&status=${status}`;
         window.location.href = url;
     }
+
+    // TinyMCE initialization
+    tinymce.init({
+        selector: '#createContent',
+        plugins: [
+            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
+            'image', 'link', 'lists', 'media', 'searchreplace', 'table',
+            'visualblocks', 'wordcount'
+        ],
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+        height: 500
+    });
+
+    // Form submission handler
+    document.getElementById('createForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        formData.set('description', tinymce.get('createContent').getContent());
+
+        fetch('/admin/blogs/add', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi tạo blog');
+            });
+    });
 </script>
 </body>
 </html>
