@@ -1,6 +1,5 @@
 package com.fpt.enewsvn.service;
 
-
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.fpt.enewsvn.Enum.Status;
@@ -16,7 +15,6 @@ import com.fpt.enewsvn.exception.ErrorCode;
 import com.fpt.enewsvn.mapper.BlogMapper;
 import com.fpt.enewsvn.repository.BlogCategoryRepository;
 import com.fpt.enewsvn.repository.BlogRepository;
-
 
 import com.fpt.enewsvn.repository.UserRepository;
 import lombok.AccessLevel;
@@ -52,7 +50,6 @@ public class BlogService {
     Cloudinary cloudinary;
     UserRepository userRepository;
 
-
     public boolean add(BlogCreationRequest request) {
         BlogEntity blogEntity = blogMapper.toBlogEntity(request);
         BlogCategoryEntity blogCategoryEntity = blogCategoryRepository.findById(request.getCategoryID()).orElse(null);
@@ -64,7 +61,8 @@ public class BlogService {
         }
 
         if (request.getUser() != null) {
-            blogEntity.setUser(userRepository.findById(request.getUser()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+            blogEntity.setUser(userRepository.findById(request.getUser())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
         }
 
         if (request.getPosition() == null || request.getPosition() <= 0) {
@@ -99,63 +97,64 @@ public class BlogService {
         return blogMapper.toBlogsResponseDTO(blogRepository.findAll());
     }
 
-
     public BlogResponse update(Long id, BlogUpdateRequest request) {
         BlogEntity blogEntity = getBlogEntityById(id);
         if (blogEntity == null) {
             throw new AppException(ErrorCode.BLOG_NOT_FOUND);
         }
 
-        //Check nếu không thay đổi BlogCategory thì sẽ ko set giá trị mới
+        // Check nếu không thay đổi BlogCategory thì sẽ ko set giá trị mới
         BlogCategoryEntity blogCategoryEntity = null;
 
         if (request.getCategoryID() != null) {
-            blogCategoryEntity = blogCategoryRepository.findById(request.getCategoryID()).orElseThrow(() -> new AppException(ErrorCode.BLOG_CATEGORY_NOT_FOUND));
+            blogCategoryEntity = blogCategoryRepository.findById(request.getCategoryID())
+                    .orElseThrow(() -> new AppException(ErrorCode.BLOG_CATEGORY_NOT_FOUND));
             blogEntity.setBlogCategory(blogCategoryEntity);
         } else {
             blogEntity.setBlogCategory(null);
         }
 
         if (request.getUser() != null) {
-            blogEntity.setUser(userRepository.findById(request.getUser()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+            blogEntity.setUser(userRepository.findById(request.getUser())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
         }
 
         if (StringUtils.hasLength(request.getTitle())) {
             blogEntity.setSlug(getSlug(request.getTitle()));
         }
 
-//        if (request.getThumbnail() != null && !request.getThumbnail().isEmpty()) {
-//            int count = 0;
-//            List<String> images = new ArrayList<>();
-//            for (String file : blogCategoryEntity.getImage()) {
-//                try {
-//                    deleteImageFromCloudinary(file);
-//                } catch (IOException e) {
-//                    log.error(e.getMessage());
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
-//            for (MultipartFile file : request.getThumbnail()) {
-//                String slug = getSlug(request.getTitle());
-//
-//                if (!StringUtils.hasLength(slug)) {
-//                    slug = getSlug(request.getTitle());
-//                }
-//                try {
-//                    String url = uploadImageFromFile(file, slug, count++);
-//                } catch (IOException e) {
-//                    log.error(e.getMessage());
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//            blogCategoryEntity.setImage(images);
-//        }
+        // if (request.getThumbnail() != null && !request.getThumbnail().isEmpty()) {
+        // int count = 0;
+        // List<String> images = new ArrayList<>();
+        // for (String file : blogCategoryEntity.getImage()) {
+        // try {
+        // deleteImageFromCloudinary(file);
+        // } catch (IOException e) {
+        // log.error(e.getMessage());
+        // throw new RuntimeException(e);
+        // }
+        // }
+        //
+        // for (MultipartFile file : request.getThumbnail()) {
+        // String slug = getSlug(request.getTitle());
+        //
+        // if (!StringUtils.hasLength(slug)) {
+        // slug = getSlug(request.getTitle());
+        // }
+        // try {
+        // String url = uploadImageFromFile(file, slug, count++);
+        // } catch (IOException e) {
+        // log.error(e.getMessage());
+        // throw new RuntimeException(e);
+        // }
+        // }
+        // blogCategoryEntity.setImage(images);
+        // }
 
         blogMapper.updateBlogEntity(blogEntity, request);
         BlogResponse blogResponse = blogMapper.toBlogResponse(blogRepository.save(blogEntity));
 
-        //Chỉ trả về 2 fields là ID và Title của thằng con, không trả hết
+        // Chỉ trả về 2 fields là ID và Title của thằng con, không trả hết
         BlogCategoryResponse blogCategoryResponse = new BlogCategoryResponse();
         if (blogEntity.getBlogCategory() != null) {
             blogCategoryResponse.setId(blogEntity.getBlogCategory().getId());
@@ -163,13 +162,13 @@ public class BlogService {
             blogResponse.setBlogCategory(blogCategoryResponse);
         }
 
-        //Chỉ trả về 2 fields là ID và First và Last Name của thằng con, không trả hết
+        // Chỉ trả về 2 fields là ID và First và Last Name của thằng con, không trả hết
         UserResponseDTO userResponseDTO = new UserResponseDTO();
         if (blogEntity.getUser() != null) {
             userResponseDTO.setUserID(blogEntity.getUser().getUserID());
             userResponseDTO.setFirstName(blogEntity.getUser().getFirstName());
             userResponseDTO.setLastName(blogEntity.getUser().getLastName());
-//            blogResponse.setUser(userResponseDTO);
+            // blogResponse.setUser(userResponseDTO);
         }
         return blogResponse;
     }
@@ -178,25 +177,25 @@ public class BlogService {
         return blogCategoryRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.BLOG_NOT_FOUND));
     }
 
-
-    //Cập nhật trạng thái, xóa mềm, khôi phục cho All ID được chọn
-    //Dùng khi user tích vào nhiều ô phẩn tử, sau đó chọn thao tác, ẩn, xóa mềm, khôi phục
+    // Cập nhật trạng thái, xóa mềm, khôi phục cho All ID được chọn
+    // Dùng khi user tích vào nhiều ô phẩn tử, sau đó chọn thao tác, ẩn, xóa mềm,
+    // khôi phục
 
     public String update(List<Long> id, String status) {
         Status statusEnum = getStatus(status);
         List<BlogEntity> blogEntities = blogRepository.findAllById(id);
 
-        //CẬP NHẬT TRẠNG THÁI BLOG
+        // CẬP NHẬT TRẠNG THÁI BLOG
         if (statusEnum == Status.INACTIVE || statusEnum == Status.ACTIVE) {
             blogEntities.forEach(blogEntity -> blogEntity.setStatus(statusEnum));
             blogRepository.saveAll(blogEntities);
             return "Cập nhật trạng thái thành công";
 
-            //CẬP NHẬT XÓA MỀM BLOG
+            // CẬP NHẬT XÓA MỀM BLOG
         } else if (statusEnum == Status.SOFT_DELETED) {
             blogEntities.forEach(blogEntity -> blogEntity.setDeleted(true));
 
-            //CẬP NHẬT KHÔI PHỤC BLOG
+            // CẬP NHẬT KHÔI PHỤC BLOG
             blogRepository.saveAll(blogEntities);
             return "Xóa mềm thành công";
         } else if (statusEnum == Status.RESTORED) {
@@ -208,8 +207,7 @@ public class BlogService {
         return "Cập nhật hất bại";
     }
 
-
-    //XÓA CỨNG 1 BLOG
+    // XÓA CỨNG 1 BLOG
     public boolean delete(Long id) {
         BlogEntity blogEntity = getBlogEntityById(id);
         if (blogEntity == null) {
@@ -230,7 +228,7 @@ public class BlogService {
         return true;
     }
 
-    //XÓA CỨNG NHIỀU BLOG
+    // XÓA CỨNG NHIỀU BLOG
     public boolean delete(List<Long> longs) {
         List<BlogEntity> blogEntities = blogRepository.findAllById(longs);
 
@@ -250,7 +248,7 @@ public class BlogService {
         return true;
     }
 
-    //XÓA MỀM 1 BLOG
+    // XÓA MỀM 1 BLOG
     public boolean deleteTemporarily(Long id) {
         BlogEntity blogEntity = getBlogEntityById(id);
         if (blogEntity == null) {
@@ -261,7 +259,6 @@ public class BlogService {
         blogRepository.save(blogEntity);
         return true;
     }
-
 
     public boolean restore(Long id) {
         BlogEntity blogEntity = getBlogEntityById(id);
@@ -282,12 +279,11 @@ public class BlogService {
             blogResponse.setId(blogEntity.getBlogCategory().getId());
         }
 
-
         return blogResponse;
     }
 
-
-    public Map<String, Object> getAll(int page, int size, String sortKey, String sortDirection, String status, String keyword) {
+    public Map<String, Object> getAll(int page, int size, String sortKey, String sortDirection, String status,
+            String keyword) {
         Map<String, Object> map = new HashMap<>();
 
         Sort.Direction direction = getSortDirection(sortDirection);
@@ -305,7 +301,8 @@ public class BlogService {
             } else {
                 // Tìm kiếm theo tên sản phẩm và status
                 Status statusEnum = getStatus(status);
-                blogEntityPage = blogRepository.findByTitleContainingIgnoreCaseAndStatusAndDeleted(keyword, statusEnum, pageable, false);
+                blogEntityPage = blogRepository.findByTitleContainingIgnoreCaseAndStatusAndDeleted(keyword, statusEnum,
+                        pageable, false);
             }
         } else {
             // Nếu không có keyword, chỉ lọc theo status
@@ -327,7 +324,8 @@ public class BlogService {
         return map;
     }
 
-    public Map<String, Object> getTrash(int page, int size, String sortKey, String sortDirection, String status, String keyword) {
+    public Map<String, Object> getTrash(int page, int size, String sortKey, String sortDirection, String status,
+            String keyword) {
         Map<String, Object> map = new HashMap<>();
 
         Sort.Direction direction = getSortDirection(sortDirection);
@@ -345,7 +343,8 @@ public class BlogService {
             } else {
                 // Tìm kiếm theo tên sản phẩm và status
                 Status statusEnum = getStatus(status);
-                blogEntityPage = blogRepository.findByTitleContainingIgnoreCaseAndStatusAndDeleted(keyword, statusEnum, pageable, true);
+                blogEntityPage = blogRepository.findByTitleContainingIgnoreCaseAndStatusAndDeleted(keyword, statusEnum,
+                        pageable, true);
             }
         } else {
             // Nếu không có keyword, chỉ lọc theo status
@@ -367,7 +366,6 @@ public class BlogService {
         return map;
     }
 
-
     private String getSlug(String slug) {
         return Normalizer.normalize(slug, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "")
@@ -376,7 +374,6 @@ public class BlogService {
                 .replaceAll("\\s+", "-")
                 .toLowerCase();
     }
-
 
     private Sort.Direction getSortDirection(String sortDirection) {
 
@@ -388,8 +385,7 @@ public class BlogService {
         return sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
     }
 
-
-    //CHECK VIẾT HOA STATUS KHI TRUYỀN VÀO (ACTIVE, INACTIVE)
+    // CHECK VIẾT HOA STATUS KHI TRUYỀN VÀO (ACTIVE, INACTIVE)
     private Status getStatus(String status) {
         try {
             return Status.valueOf(status.toUpperCase());
@@ -418,14 +414,12 @@ public class BlogService {
 
         String fileName = getNameFile(slug, count);
 
-
         Map params = ObjectUtils.asMap(
                 "use_filename", true,
                 "unique_filename", false,
                 "overwrite", false,
                 "folder", "blog",
-                "public_id", fileName
-        );
+                "public_id", fileName);
 
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
         return uploadResult.get("secure_url").toString();
@@ -439,8 +433,7 @@ public class BlogService {
         }
     }
 
-
-    //lấy hình từ ID
+    // lấy hình từ ID
     private String extractPublicId(String imageUrl) {
         String temp = imageUrl.substring(imageUrl.indexOf("upload/") + 7);
         String publicId = temp.substring(temp.indexOf("/") + 1, temp.lastIndexOf("."));
@@ -448,5 +441,8 @@ public class BlogService {
         return publicId;
     }
 
+    public List<BlogEntity> findByCategory(String category) {
+        return blogRepository.findByBlogCategory_Name(category);
+    }
 
 }

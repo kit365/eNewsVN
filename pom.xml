@@ -27,7 +27,7 @@
         <url/>
     </scm>
     <properties>
-        <java.version>21</java.version>
+        <java.version>23</java.version>
     </properties>
     <dependencies>
 
@@ -135,7 +135,7 @@
         </dependency>
 
 
-<!--        thư viện cache-->
+        <!--        thư viện cache-->
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -175,7 +175,7 @@
         </dependency>
 
 
-<!--        Phục vụ cho tính năng gửi mail khi đặt đơn hàng-->
+        <!--        Phục vụ cho tính năng gửi mail khi đặt đơn hàng-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -187,7 +187,7 @@
         </dependency>
 
 
-<!--        thu vien tao ma QR thong qua van ban-->
+        <!--        thu vien tao ma QR thong qua van ban-->
 
         <dependency>
             <groupId>com.google.zxing</groupId>
@@ -201,7 +201,7 @@
         </dependency>
 
 
-<!--        real-time-->
+        <!--        real-time-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
@@ -210,6 +210,11 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
         </dependency>
 
