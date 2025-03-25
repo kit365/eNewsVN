@@ -92,7 +92,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-<!--                    form tạo moi-->
                     <form id="createForm" action="/admin/category/add" method="post">
                         <div class="mb-3">
                             <label for="title" class="form-label">Tiêu đề</label>
@@ -124,7 +123,8 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
     function updateBulkActions() {
         const selectedItems = document.querySelectorAll('.select-item:checked');
         const bulkActions = document.getElementById('bulkActions');
@@ -132,6 +132,82 @@
         bulkActions.classList.toggle('hidden', selectedItems.length === 0);
         bulkUpdate.classList.toggle('hidden', selectedItems.length === 0);
     }
+
+    function openEditModal(id) {
+        fetch(`/admin/category/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('editId').value = data.id;
+                document.getElementById('editTitle').value = data.title;
+                document.getElementById('editPosition').value = data.position;
+
+                const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+                editModal.show();
+            })
+            .catch(error => console.error('Error fetching category data:', error));
+    }
+
+    function saveEdit() {
+        const id = document.getElementById('editId').value;
+        const title = document.getElementById('editTitle').value;
+        const position = parseInt(document.getElementById('editPosition').value);
+        const status = document.getElementById('editStatus').value;
+
+        const updateRequest = {
+            title: title,
+            position: position,
+            status: status,
+            deleted: false // Có thể thay đổi nếu cần
+        };
+
+        console.log(updateRequest);
+
+        fetch(`/admin/category/edit/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateRequest)
+        })
+            .then(() => {
+                alert('Cập nhật thành công!');
+                location.reload(); // Tải lại trang để thấy thay đổi
+            })
+            .catch(error => console.error('Error updating category:', error));
+    }
+
+    function deleteSelected() {
+        const selectedItems = document.querySelectorAll('.select-item:checked');
+        const idsToDelete = Array.from(selectedItems).map(item => {
+            return item.closest('tr').querySelector('td:nth-child(2)').innerText; // Lấy ID từ cột thứ hai
+        });
+
+        if (idsToDelete.length === 0) {
+            alert('Vui lòng chọn ít nhất một mục để xóa.');
+            return;
+        }
+
+        if (confirm(`Bạn có chắc chắn muốn xóa ${idsToDelete.length} mục?`)) {
+            fetch('/admin/category/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(idsToDelete) // Gửi danh sách ID
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Xóa thành công!');
+                        location.reload(); // Tải lại trang
+                    } else {
+                        alert('Có lỗi xảy ra khi xóa.');
+                    }
+                })
+                .catch(error => console.error('Error deleting categories:', error));
+        }
+    }
+
+
 </script>
 </body>
 </html>
