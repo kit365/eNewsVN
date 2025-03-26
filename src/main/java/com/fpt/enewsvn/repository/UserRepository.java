@@ -35,4 +35,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
             "u.role IS NOT NULL AND " +
             "(:status IS NULL OR u.status = :status)")
     Page<UserEntity> findByStatusWithRole(Status status, Pageable pageable);
+
+    UserEntity findByEmail(String email);
 }

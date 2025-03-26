@@ -242,7 +242,6 @@ public class UserService {
         return true;
     }
 
-
     public boolean deleteSelectedAccount(List<Long> id) {
         List<UserEntity> userEntities = userRepository.findAllById(id);
         for (UserEntity userEntity : userEntities) {
@@ -255,4 +254,19 @@ public class UserService {
         }
         return true;
     }
+
+    public boolean login(String email, String password){
+        UserEntity userEntity = userRepository.findByEmail(email);
+        if(userEntity != null){
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+            boolean result = passwordEncoder.matches(password, userEntity.getPassword());
+            if(!result){
+                throw new AppException(ErrorCode.PASSWORD_INCORRECT);
+            }
+            return true;
+        }
+        return false;
+    }
+
+
 }
