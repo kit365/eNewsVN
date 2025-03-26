@@ -11,14 +11,11 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    
+
     @Mapping(target = "role", ignore = true)
-    @Mapping(target = "avatar", ignore = true)
-    @Mapping(target = "email", ignore = true)
-    @Mapping(target = "address", ignore = true)
     UserEntity toUserEntity(CreateUserRequest userRequestDTO);
 
-    @Mapping(target = "role", source = "role")
+    @Mapping(target = "role", ignore = true)
     UserResponseDTO toUserResponseDTO(UserEntity userEntity);
 
 
@@ -26,9 +23,6 @@ public interface UserMapper {
     List<UserResponseDTO> toUserResponseDTO(List<UserEntity> userEntities);
 
 
-    @Mapping(target = "username", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "avatar", ignore = true)
     @Mapping(target = "role", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateUser(@MappingTarget UserEntity user,  UpdateUserRequest userDTO);

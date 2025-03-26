@@ -26,7 +26,7 @@ public class UserResponseDTO implements Serializable {
     String phone;
     String avatar;
     String address;
-    RoleEntity role;
+    String role;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     String password;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

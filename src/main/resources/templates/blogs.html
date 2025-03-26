@@ -21,7 +21,7 @@
 <body>
 <div class="sidebar">
     <h3>Admin Panel</h3>
-    <a href="">Tài khoản</a>
+    <a th:href="@{/admin/accounts}">Tài khoản</a>
     <a th:href="@{/admin/roles}">Role</a>
     <a th:href="@{/admin/blogs}">Blogs</a>
     <a th:href="@{/admin/blog-category}">Thể loại Blog</a>
@@ -143,7 +143,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Vị trí</label>
-                            <input type="number" class="form-control" name="position" required>
+                            <input type="number" class="form-control" name="position" >
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Trạng thái</label>
@@ -198,7 +198,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Vị trí</label>
-                            <input type="number" class="form-control" id="editPosition" name="position" required>
+                            <input type="number" class="form-control" id="editPosition" name="position">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Trạng thái</label>

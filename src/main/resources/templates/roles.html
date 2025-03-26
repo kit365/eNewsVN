@@ -19,7 +19,7 @@
 <body>
 <div class="sidebar">
     <h3>Admin Panel</h3>
-    <a href="">Tài khoản</a>
+    <a th:href="@{/admin/accounts}">Tài khoản</a>
     <a th:href="@{/admin/roles}">Role</a>
     <a th:href="@{/admin/blogs}">Blogs</a>
     <a th:href="@{/admin/blog-category}">Thể loại Blog</a>
@@ -100,30 +100,21 @@
 
     <!-- Create Modal -->
     <div class="modal fade" id="createModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tạo Blog Mới</h5>
+                    <h5 class="modal-title">Tạo Vai Trò Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="createForm" th:action="@{/admin/blogs/add}" method="post">
+                <form id="createForm" th:action="@{/admin/roles/add}" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Tiêu đề</label>
+                            <label class="form-label">Vai trò</label>
                             <input type="text" class="form-control" name="title" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Thể loại</label>
-                            <select class="form-select" name="categoryId" required>
-                                <option th:each="category : ${categories}"
-                                        th:value="${category.id}"
-                                        th:text="${category.title}">
-                                </option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nội dung</label>
-                            <textarea id="createContent" class="form-control" name="description" rows="15"></textarea>
+                            <label class="form-label">Mô tả</label>
+                            <input type="text" class="form-control" name="description">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Trạng thái</label>
@@ -192,7 +183,7 @@
         fetch(`/admin/roles/${id}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('editId').value = data.id;
+                document.getElementById('editId').value = data.roleId; // sửa từ id thành roleId
                 document.getElementById('editTitle').value = data.title;
                 document.getElementById('editDescription').value = data.description;
                 document.getElementById('editStatus').value = data.status;
@@ -205,28 +196,44 @@
 
     function saveEdit() {
         const id = document.getElementById('editId').value;
-        const title = document.getElementById('editTitle').value;
-        const description = document.getElementById('editDescription').value;
-        const status = document.getElementById('editStatus').value;
-
         const updateRequest = {
-            title: title,
-            description: description,
-            status: status
+            title: document.getElementById('editTitle').value,
+            description: document.getElementById('editDescription').value,
+            status: document.getElementById('editStatus').value
         };
+
+        // Thêm CSRF token nếu cần
+        const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
 
         fetch(`/admin/roles/edit/${id}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: headers,
             body: JSON.stringify(updateRequest)
         })
-            .then(() => {
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
                 alert('Cập nhật thành công!');
                 location.reload();
             })
-            .catch(error => console.error('Error updating role:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi cập nhật vai trò');
+            });
     }
 
     function deleteSelected() {
@@ -288,39 +295,38 @@
         window.location.href = url;
     }
 
-    // TinyMCE initialization
-    tinymce.init({
-        selector: '#createContent',
-        plugins: [
-            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
-            'image', 'link', 'lists', 'media', 'searchreplace', 'table',
-            'visualblocks', 'wordcount'
-        ],
-        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-        height: 500
-    });
 
     // Form submission handler
     document.getElementById('createForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
         const formData = new FormData(this);
-        formData.set('description', tinymce.get('createContent').getContent());
+        const data = {
+            title: formData.get('title'),
+            description: formData.get('description'),
+            status: formData.get('status')
+        };
 
-        fetch('/admin/blogs/add', {
+        fetch('/admin/roles/add', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         })
             .then(response => {
-                if (response.ok) {
-                    location.reload();
-                } else {
+                if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
+                return response.json();
+            })
+            .then(() => {
+                alert('Tạo vai trò mới thành công!');
+                location.reload();
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Có lỗi xảy ra khi tạo blog');
+                alert('Có lỗi xảy ra khi tạo vai trò');
             });
     });
 </script>

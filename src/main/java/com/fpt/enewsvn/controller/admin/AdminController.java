@@ -6,13 +6,19 @@ import com.fpt.enewsvn.dto.request.blog_category.CreateBlogCategoryRequest;
 import com.fpt.enewsvn.dto.request.blog_category.UpdateBlogCategoryRequest;
 import com.fpt.enewsvn.dto.request.role.CreateRoleRequest;
 import com.fpt.enewsvn.dto.request.role.UpdateRoleRequest;
+import com.fpt.enewsvn.dto.request.user.CreateUserRequest;
+import com.fpt.enewsvn.dto.request.user.UpdateUserRequest;
 import com.fpt.enewsvn.dto.response.BlogCategoryResponse;
 import com.fpt.enewsvn.dto.response.BlogResponse;
 import com.fpt.enewsvn.dto.response.RoleResponseDTO;
+import com.fpt.enewsvn.dto.response.UserResponseDTO;
 import com.fpt.enewsvn.entity.BlogCategoryEntity;
+import com.fpt.enewsvn.entity.RoleEntity;
+import com.fpt.enewsvn.exception.AppException;
 import com.fpt.enewsvn.service.BlogCategoryService;
 import com.fpt.enewsvn.service.BlogService;
 import com.fpt.enewsvn.service.RoleService;
+import com.fpt.enewsvn.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,6 +43,9 @@ public class AdminController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private UserService userService;
 
 
     // BLOG
@@ -161,9 +170,13 @@ public class AdminController {
     }
 
     @PostMapping("/roles/add")
-    public String addRole(@ModelAttribute CreateRoleRequest request) {
-        roleService.add(request);
-        return "redirect:/admin/roles";
+    public ResponseEntity<RoleResponseDTO> createRole(@RequestBody CreateRoleRequest request) {
+        try {
+            RoleResponseDTO newRole = roleService.add(request);
+            return ResponseEntity.ok(newRole);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/roles/delete/{id}")
@@ -179,16 +192,87 @@ public class AdminController {
         return ResponseEntity.ok("Xóa thành công");
     }
 
-    @GetMapping("/roles/{id}")
-    @ResponseBody // Sử dụng để trả về JSON
-    public RoleResponseDTO showRoleByID(@PathVariable("id") Long id) {
-        return roleService.showDetail(id);
+    @GetMapping("roles/{id}")
+    public ResponseEntity<RoleResponseDTO> getRole(@PathVariable Long id) {
+        try {
+            RoleResponseDTO role = roleService.getRoleById(id);
+            return ResponseEntity.ok(role);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @PostMapping("/roles/edit/{id}")
-    public ResponseEntity<String> editRole(@PathVariable("id") Long id, @RequestBody UpdateRoleRequest request) {
-        roleService.update(id, request);
-        return ResponseEntity.ok("Cập nhật thành công"); // Hoặc trả về thông báo khác
+    @PostMapping("roles/edit/{id}")
+    public ResponseEntity<RoleResponseDTO> updateRole(@PathVariable Long id, @RequestBody UpdateRoleRequest request) {
+        try {
+            RoleResponseDTO updatedRole = roleService.updateRole(id, request);
+            return ResponseEntity.ok(updatedRole);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //ADMIN
+
+    @GetMapping("/accounts")
+    public String account(Model model,
+                          @RequestParam(defaultValue = "0") int page,
+                          @RequestParam(defaultValue = "10") int size,
+                          @RequestParam(defaultValue = "userID") String sortKey,
+                          @RequestParam(defaultValue = "asc") String sortDirection,
+                          @RequestParam(defaultValue = "") String keyword,
+                          @RequestParam(defaultValue = "ACTIVE") String status) {
+
+        Page<UserResponseDTO> pageResult = userService.getAll(page, size, sortKey, sortDirection, keyword, status);
+        List<RoleResponseDTO> roles = roleService.getAllRoles();
+
+        model.addAttribute("accounts", pageResult.getContent());
+        model.addAttribute("roles", roles);
+        model.addAttribute("page", page);
+        model.addAttribute("totalPages", pageResult.getTotalPages());
+        model.addAttribute("currentPage", page);
+        return "accounts";
+    }
+
+    @PostMapping("/accounts/add")
+    public String addAccount(@ModelAttribute CreateUserRequest request) {
+        userService.add(request);
+        return "redirect:/admin/accounts";
+    }
+
+    @GetMapping("/accounts/delete/{id}")
+    public String deleteAccount(@PathVariable("id") Long id) {
+        userService.deleteAccount(id);
+        return "redirect:/admin/accounts";
+    }
+
+    @DeleteMapping("/accounts/delete")
+    public ResponseEntity<String> deleteAccount(@RequestBody List<Long> ids) {
+        // Gọi dịch vụ để xóa danh mục theo danh sách ID
+        userService.deleteSelectedAccount(ids);
+        return ResponseEntity.ok("Xóa thành công");
+    }
+
+    @GetMapping("/accounts/{id}")
+    @ResponseBody // Sử dụng để trả về JSON
+    public UserResponseDTO showAccountByID(@PathVariable("id") Long id) {
+        return userService.showDetail(id);
+    }
+
+    @GetMapping("/accounts/edit/{id}")
+    public ResponseEntity<UserResponseDTO> getAccountById(@PathVariable Long id) {
+        UserResponseDTO userResponse = userService.getUser(id);
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @PostMapping("/accounts/save")
+    public ResponseEntity<String> saveAccount(@RequestBody UpdateUserRequest request) {
+        try {
+            userService.saveUser(request);
+            return ResponseEntity.ok("User saved successfully");
+        } catch (AppException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }

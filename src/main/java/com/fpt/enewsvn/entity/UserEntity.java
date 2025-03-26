@@ -1,5 +1,6 @@
 package com.fpt.enewsvn.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -39,7 +40,6 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "FullName")
     String fullName;
 
-
     @Column(name = "Email", unique = true)
     String email;
 
@@ -55,10 +55,9 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "Address")
     String address;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "roleId", nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    @JsonBackReference
     RoleEntity role;
-
 
 }

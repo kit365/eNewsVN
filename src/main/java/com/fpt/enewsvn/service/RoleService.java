@@ -22,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,25 +38,39 @@ public class RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
 
-    public boolean add(CreateRoleRequest request) {
-        if (roleRepository.existsByTitle(request.getTitle())) {
-            throw new AppException(ErrorCode.ROLE_EXISTED);
-        }
-        RoleEntity roleEntity = roleMapper.toRoleEntity(request);
-        roleRepository.save(roleEntity);
-        return true;
+    public RoleResponseDTO add(CreateRoleRequest request) {
+        // Tạo entity mới
+        RoleEntity role = new RoleEntity();
+        role.setTitle(request.getTitle());
+        role.setDescription(request.getDescription());
+        role.setStatus(Status.ACTIVE);
+        role.setCreatedAt(new Date());
+        role.setUpdatedAt(new Date());
+
+        // Lưu vào database
+        RoleEntity savedRole = roleRepository.save(role);
+
+        // Chuyển đổi và trả về DTO
+        return roleMapper.toRoleResponseDTO(savedRole);
     }
 
 
-    public RoleResponseDTO update(Long id, UpdateRoleRequest request) {
-        RoleEntity roleEntity = getRoleEntityById(id);
-
-        log.info("Tìm thấy role: {}", id);
+    public RoleResponseDTO updateRole(Long id, UpdateRoleRequest request) {
+        // Tìm role theo id
+        RoleEntity role = roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Role not found with id: " + id));
 
         // Cập nhật thông tin từ request
-        roleMapper.updateRole(roleEntity, request);
-        log.info("Cập nhật role id: {}", id);
-        return roleMapper.toRoleResponseDTO(roleRepository.save(roleEntity));
+        role.setTitle(request.getTitle());
+        role.setDescription(request.getDescription());
+        role.setStatus(Status.valueOf(request.getStatus())); // Chuyển đổi String thành enum Status
+        role.setUpdatedAt(new Date()); // Sử dụng java.util.Date
+
+        // Lưu vào database
+        RoleEntity savedRole = roleRepository.save(role);
+
+        // Chuyển đổi và trả về DTO
+        return roleMapper.toRoleResponseDTO(savedRole);
     }
 
     public String update(List<Long> id, String status) {
@@ -116,6 +132,17 @@ public class RoleService {
         return rolePage.map(roleMapper::toRoleResponseDTO);
     }
 
+    public List<RoleResponseDTO> getAllRoles() {
+        return roleRepository.findAll().stream()
+                .map(role -> RoleResponseDTO.builder()
+                        .roleId(role.getRoleId())
+                        .title(role.getTitle())
+                        .description(role.getDescription())
+                        .status(role.getStatus().toString())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     public Map<String, Object> getTrash(int page, int size, String sortKey, String sortDirection, String status, String keyword) {
         return Map.of();
     }
@@ -125,5 +152,25 @@ public class RoleService {
         return roleRepository.findById(id).orElse(null);
     }
 
+    public RoleResponseDTO getRoleById(Long id) {
+        RoleEntity role = roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        return RoleResponseDTO.builder()
+                .roleId(role.getRoleId())
+                .title(role.getTitle())
+                .description(role.getDescription())
+                .build();
+    }
 
 }
+
+
+
+
+
+
+
+
+
+

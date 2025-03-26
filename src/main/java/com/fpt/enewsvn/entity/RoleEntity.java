@@ -1,9 +1,6 @@
 package com.fpt.enewsvn.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -33,9 +30,10 @@ public class RoleEntity extends AbstractEntity {
     @Column(name = "Description", columnDefinition = "MEDIUMTEXT")
     String description;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "role", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "role")
     @JsonManagedReference
-    List<UserEntity> user = new ArrayList<>();
+    @JsonIgnoreProperties("users")
+    private List<UserEntity> users = new ArrayList<>();
 
 
 

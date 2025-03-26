@@ -17,6 +17,9 @@ public enum ErrorCode {
     //User
     USER_NOT_FOUND(404, "Không tìm thấy tên người dùng"),
     USER_NOT_NULL(400, "User Not Null"),
+    ROLE_IS_REQUIRED(400, "Vai trò là bắt buộc"),
+    INVALID_FULL_NAME(400, "Họ và tên không hợp lệ"),
+    INVALID_PHONE_NUMBER(400, "Số điện thoại không hợp lệ"),
     USERNAME_NOT_NULL(400, "Tên đăng nhập không được để trống"),
     USERNAME_NOT_BLANK(400, "Tên đăng nhập không được để trống"),
     USERNAME_INVALID(400, "Tên đăng nhập phải từ 5 đến 20 ký tự"),

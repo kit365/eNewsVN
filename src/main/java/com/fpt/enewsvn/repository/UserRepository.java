@@ -2,6 +2,8 @@ package com.fpt.enewsvn.repository;
 
 import com.fpt.enewsvn.Enum.Status;
 import com.fpt.enewsvn.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -21,16 +23,16 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
 
 
     boolean existsByEmail(String email);
-//    UserEntity findByUsername(String username);
-    Optional<UserEntity> findAllByUsername(String username);
-    @Query("SELECT s FROM UserEntity s WHERE s.username LIKE %:keyword%")
-    List<UserEntity> searchByKeyword(@Param("keyword") String keyword);
 
-    Optional<UserEntity> findByUsername(String username);
+    @Query("SELECT DISTINCT u FROM UserEntity u LEFT JOIN FETCH u.role WHERE " +
+            "u.role IS NOT NULL AND " +
+            "(:keyword IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
+            "(:status IS NULL OR u.status = :status)")
+    Page<UserEntity> findByKeywordAndStatusWithRole(String keyword, Status status, Pageable pageable);
 
-
-    UserEntity findByEmail(String email);
-
-
-    long countByStatusAndDeleted(Status status, boolean b);
+    @Query("SELECT DISTINCT u FROM UserEntity u LEFT JOIN FETCH u.role WHERE " +
+            "u.role IS NOT NULL AND " +
+            "(:status IS NULL OR u.status = :status)")
+    Page<UserEntity> findByStatusWithRole(Status status, Pageable pageable);
 }
